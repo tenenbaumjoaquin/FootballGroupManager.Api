@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.37216.2
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FootballGroupManager.Api", "FootballGroupManager.Api\FootballGroupManager.Api.csproj", "{B74C1C66-BC36-4D05-BA88-75D6F9C38DB0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FootballGroupManager.Domain", "FootballGroupManager.Domain\FootballGroupManager.Domain.csproj", "{DE4832EF-FA75-4D4E-8447-7550627E71F0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B74C1C66-BC36-4D05-BA88-75D6F9C38DB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B74C1C66-BC36-4D05-BA88-75D6F9C38DB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B74C1C66-BC36-4D05-BA88-75D6F9C38DB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B74C1C66-BC36-4D05-BA88-75D6F9C38DB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE4832EF-FA75-4D4E-8447-7550627E71F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE4832EF-FA75-4D4E-8447-7550627E71F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE4832EF-FA75-4D4E-8447-7550627E71F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE4832EF-FA75-4D4E-8447-7550627E71F0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A2E70AC9-B7FF-47FE-B093-03BDED1E7662}
+	EndGlobalSection
+EndGlobal
