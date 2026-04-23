@@ -1,4 +1,4 @@
-﻿namespace FootballGroupManager.Api.DTOs;
+﻿namespace FootballGroupManager.Application.DTOs;
 
 public class CrearJugadorDto
 {

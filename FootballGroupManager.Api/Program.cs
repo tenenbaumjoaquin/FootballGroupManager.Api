@@ -1,7 +1,12 @@
-using FootballGroupManager.Domain.Services;
+using FootballGroupManager.Application.Interfaces;
+using FootballGroupManager.Application.Services.Jugadores;
+using FootballGroupManager.Infrastructure.Repositories;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddScoped<IJugadorRepository, InMemoryJugadorRepository>();
+builder.Services.AddScoped<IJugadorService, JugadorService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

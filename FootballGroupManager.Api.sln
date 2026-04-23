@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FootballGroupManager.Api", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FootballGroupManager.Domain", "FootballGroupManager.Domain\FootballGroupManager.Domain.csproj", "{DE4832EF-FA75-4D4E-8447-7550627E71F0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FootballGroupManager.Application", "FootballGroupManager.Application\FootballGroupManager.Application.csproj", "{316936FB-1690-4FC4-B4B6-1FAD517808AD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FootballGroupManager.Infrastructure", "FootballGroupManager.Infrastructure\FootballGroupManager.Infrastructure.csproj", "{A52963EF-EFC2-4C10-A4B9-E0A6B9FFB163}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{DE4832EF-FA75-4D4E-8447-7550627E71F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE4832EF-FA75-4D4E-8447-7550627E71F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DE4832EF-FA75-4D4E-8447-7550627E71F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{316936FB-1690-4FC4-B4B6-1FAD517808AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{316936FB-1690-4FC4-B4B6-1FAD517808AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{316936FB-1690-4FC4-B4B6-1FAD517808AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{316936FB-1690-4FC4-B4B6-1FAD517808AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A52963EF-EFC2-4C10-A4B9-E0A6B9FFB163}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A52963EF-EFC2-4C10-A4B9-E0A6B9FFB163}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A52963EF-EFC2-4C10-A4B9-E0A6B9FFB163}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A52963EF-EFC2-4C10-A4B9-E0A6B9FFB163}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

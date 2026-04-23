@@ -1,6 +1,6 @@
 ﻿using FootballGroupManager.Domain.Entities;
 
-namespace FootballGroupManager.Domain.Services;
+namespace FootballGroupManager.Application.Services.Jugadores;
 
 public class JugadorService
 {

@@ -1,4 +1,4 @@
-﻿using FootballGroupManager.Api.DTOs;
+﻿using FootballGroupManager.Application.DTOs;
 using FootballGroupManager.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
 

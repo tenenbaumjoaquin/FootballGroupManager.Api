@@ -1,7 +1,7 @@
-﻿using FootballGroupManager.Api.DTOs;
+﻿using FootballGroupManager.Application.DTOs;
 using FootballGroupManager.Domain.Entities;
 
-namespace FootballGroupManager.Api.Mappings;
+namespace FootballGroupManager.Application.Mapping;
 
 public static class JugadorMapper
 {

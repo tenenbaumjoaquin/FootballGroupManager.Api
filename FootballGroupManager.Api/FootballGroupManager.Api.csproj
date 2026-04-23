@@ -11,7 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FootballGroupManager.Domain\FootballGroupManager.Domain.csproj" />
+    <ProjectReference Include="..\FootballGroupManager.Application\FootballGroupManager.Application.csproj" />
+    <ProjectReference Include="..\FootballGroupManager.Infrastructure\FootballGroupManager.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
