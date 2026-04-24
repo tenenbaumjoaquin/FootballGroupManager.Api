@@ -11,4 +11,6 @@ public class JugadorDto
     public double PuntajeTotal { get; set; }
 
     public string Calificacion { get; set; } = string.Empty;
+
+    public List<StatDto> Stats { get; set; } = new();
 }

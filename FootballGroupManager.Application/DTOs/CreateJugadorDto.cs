@@ -1,6 +1,6 @@
 ﻿namespace FootballGroupManager.Application.DTOs;
 
-public class CrearJugadorDto
+public class CreateJugadorDto
 {
     public string Nombre { get; set; }
     public string Posicion { get; set; }

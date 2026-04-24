@@ -1,5 +1,5 @@
 ﻿using FootballGroupManager.Application.DTOs;
-using FootballGroupManager.Domain.Services;
+using FootballGroupManager.Application.Services.Jugadores;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FootballGroupManager.Api.Controllers;
@@ -16,7 +16,7 @@ public class JugadoresController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Crear(CrearJugadorDto dto)
+    public IActionResult Crear(CreateJugadorDto dto)
     {
         var stats = new Dictionary<string, int>
         {
@@ -32,11 +32,7 @@ public class JugadoresController : ControllerBase
             {"REF", dto.REF}
         };
 
-        var jugador = _service.CrearJugador(
-            dto.Nombre,
-            dto.Posicion,
-            stats
-        );
+        var jugador = _service.Crear(dto);
 
         return Ok(jugador);
     }
