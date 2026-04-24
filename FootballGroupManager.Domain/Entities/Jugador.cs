@@ -1,67 +1,79 @@
 ﻿using FootballGroupManager.Domain.DomainExceptions;
+using FootballGroupManager.Domain.ValueObjects;
 
 namespace FootballGroupManager.Domain.Entities
 {
     public class Jugador
     {
-        private readonly (string Nombre, int Puntuacion)[] _stats =
-        {
-            ("VEL", 0), ("AGT", 0), ("PAS", 0), ("GMB", 0), ("DEF", 0),
-            ("FIS", 0), ("PEG", 0), ("TIR", 0), ("ATJ", 0), ("REF", 0)
-        };
-
         public int Id { get; private set; }
         public string Nombre { get; private set; }
         public string Posicion { get; private set; }
         public string Calificacion { get; private set; } = "F";
         public double PuntajeTotal { get; private set; } = 0;
-        public bool StatsInicializadas { get; private set; } = false;
+        public EstadisticasJugador? Stats { get; private set; }
 
-        public IReadOnlyList<(string Nombre, int Puntuacion)> Stats => _stats;
+        private static readonly string[] PositicionesValidas = { "ARQ", "DEF", "VOL", "DEL" };
 
-        public Jugador(int id, string nombre, string posicion)
+        public Jugador(int id, string nombre, string posicion, EstadisticasJugador stats)
         {
             if (string.IsNullOrWhiteSpace(nombre))
                 throw new DomainException("El nombre del jugador no puede estar vacío.");
 
-            var posicionesValidas = new[] { "ARQ", "DEF", "VOL", "DEL" };
-            if (!posicionesValidas.Contains(posicion))
-                throw new DomainException($"Posición inválida: {posicion}. Valores válidos: ARQ, DEF, VOL, DEL.");
+            if (!PositicionesValidas.Contains(posicion))
+                throw new DomainException($"Posición inválida: '{posicion}'. Valores válidos: ARQ, DEF, VOL, DEL.");
+
+            if (stats is null)
+                throw new DomainException("Las estadísticas son obligatorias al crear un jugador.");
 
             Id = id;
             Nombre = nombre;
             Posicion = posicion;
-        }
-
-        public void CargarStats(Dictionary<string, int> stats)
-        {
-            for (int i = 0; i < _stats.Length; i++)
-            {
-                string nombreStat = _stats[i].Nombre;
-                if (stats.TryGetValue(nombreStat, out int valor))
-                {
-                    if (valor < 0 || valor > 10)
-                        throw new DomainException($"Valor inválido para {nombreStat}: debe estar entre 0 y 10.");
-                    _stats[i] = (nombreStat, valor);
-                }
-            }
+            Stats = stats;
             CalcularCalificacion();
-            StatsInicializadas = true;
+        }
+        // Agregar en Jugador.cs
+        public void AsignarId(int id)
+        {
+            if (Id != 0)
+                throw new DomainException("El ID ya fue asignado.");
+            if (id <= 0)
+                throw new DomainException("El ID debe ser mayor a cero.");
+            Id = id;
+        }
+        public void ActualizarNombre(string nombre)
+        {
+            if (string.IsNullOrWhiteSpace(nombre))
+                throw new DomainException("El nombre no puede estar vacío.");
+            Nombre = nombre;
         }
 
-        public void ActualizarStat(int indice, int nuevaPuntuacion)
+        public void ActualizarPosicion(string posicion)
         {
-            if (indice < 0 || indice >= _stats.Length)
-                throw new DomainException($"Índice inválido: {indice}. Debe estar entre 0 y {_stats.Length - 1}.");
-            if (nuevaPuntuacion < 0 || nuevaPuntuacion > 10)
-                throw new DomainException("La puntuación debe estar entre 0 y 10.");
+            if (!PositicionesValidas.Contains(posicion))
+                throw new DomainException($"Posición inválida: '{posicion}'.");
+            Posicion = posicion;
+            CalcularCalificacion(); // los pesos cambian con la posición
+        }
 
-            _stats[indice] = (_stats[indice].Nombre, nuevaPuntuacion);
+        public void CargarStats(EstadisticasJugador stats)
+        {
+            Stats = stats ?? throw new DomainException("Las estadísticas no pueden ser nulas.");
+            CalcularCalificacion();
+        }
+
+        public void ActualizarStat(string nombreCorto, int nuevaPuntuacion)
+        {
+            if (Stats is null)
+                throw new DomainException("Las stats no fueron inicializadas. Llamá a CargarStats primero.");
+
+            Stats = Stats.ConStat(nombreCorto, nuevaPuntuacion);
             CalcularCalificacion();
         }
 
         private void CalcularCalificacion()
         {
+            if (Stats is null) return;
+
             double[] pesos = Posicion switch
             {
                 "ARQ" => new[] { 0.8, 0.8, 1.2, 1.0, 1.2, 1.2, 1.0, 1.0, 1.5, 1.5 },
@@ -71,10 +83,26 @@ namespace FootballGroupManager.Domain.Entities
                 _ => Enumerable.Repeat(1.0, 10).ToArray()
             };
 
-            double total = 0, totalPesos = 0;
-            for (int i = 0; i < _stats.Length; i++)
+            // El orden debe coincidir con el constructor de EstadisticasJugador:
+            // VEL, AGT, PAS, GMB, DEF, FIS, PEG, TIR, ATJ, REF
+            double[] valores =
             {
-                total += _stats[i].Puntuacion * pesos[i];
+                Stats.Velocidad,
+                Stats.Aguante,
+                Stats.Pase,
+                Stats.Gambeta,
+                Stats.Defensa,
+                Stats.Fisico,
+                Stats.Pegada,
+                Stats.Tiro,
+                Stats.Atajada,
+                Stats.Reflejo
+            };
+
+            double total = 0, totalPesos = 0;
+            for (int i = 0; i < valores.Length; i++)
+            {
+                total += valores[i] * pesos[i];
                 totalPesos += pesos[i];
             }
 

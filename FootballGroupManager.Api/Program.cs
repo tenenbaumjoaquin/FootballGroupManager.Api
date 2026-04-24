@@ -1,17 +1,12 @@
-using FootballGroupManager.Application.Interfaces;
-using FootballGroupManager.Application.Services.Jugadores;
-using FootballGroupManager.Infrastructure.Repositories;
-
+using FootballGroupManager.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddScoped<IJugadorRepository, InMemoryJugadorRepository>();
-builder.Services.AddScoped<IJugadorService, JugadorService>();
+builder.Services.AddApplicationServices();
+builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-builder.Services.AddSingleton<JugadorService>();
 
 var app = builder.Build();
 
@@ -23,6 +18,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
+app.UseMiddleware<FootballGroupManager.Api.Middlewares.ErrorHandlingMiddleware>();
 app.MapControllers();
-
 app.Run();
