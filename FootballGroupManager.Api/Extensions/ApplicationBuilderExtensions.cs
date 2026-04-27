@@ -1,5 +1,7 @@
 ﻿using FootballGroupManager.Application.Interfaces;
+using FootballGroupManager.Infrastructure.Data;
 using FootballGroupManager.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace FootballGroupManager.Api.Extensions
 {
@@ -9,11 +11,12 @@ namespace FootballGroupManager.Api.Extensions
             this IServiceCollection services,
             IConfiguration configuration)
         {
-            services.AddScoped<IJugadorRepository, InMemoryJugadorRepository>();
-            // Cuando tengas EF Core listo, reemplazás esta línea por:
-            // services.AddDbContext<FootballDbContext>(options =>
-            //     options.UseSqlServer(configuration.GetConnectionString("Default")));
-            // services.AddScoped<IJugadorRepository, JugadorRepository>();
+            services.AddDbContext<FootballDbContext>(options =>
+                options.UseSqlServer(
+                    configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddScoped<IJugadorRepository, JugadorRepository>();
+
             return services;
         }
     }

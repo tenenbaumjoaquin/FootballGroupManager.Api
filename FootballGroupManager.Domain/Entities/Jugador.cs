@@ -14,6 +14,12 @@ namespace FootballGroupManager.Domain.Entities
 
         private static readonly string[] PositicionesValidas = { "ARQ", "DEF", "VOL", "DEL" };
 
+        private Jugador()
+        {
+            Nombre = string.Empty;
+            Posicion = string.Empty;
+            Calificacion = "F";
+        }
         public Jugador(int id, string nombre, string posicion, EstadisticasJugador stats)
         {
             if (string.IsNullOrWhiteSpace(nombre))

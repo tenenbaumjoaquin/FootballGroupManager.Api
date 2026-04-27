@@ -1,4 +1,5 @@
 using FootballGroupManager.Api.Extensions;
+using FootballGroupManager.Api.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
-app.UseMiddleware<FootballGroupManager.Api.Middlewares.ErrorHandlingMiddleware>();
+app.UseMiddleware<ErrorHandlingMiddleware>();
 app.MapControllers();
 app.Run();
