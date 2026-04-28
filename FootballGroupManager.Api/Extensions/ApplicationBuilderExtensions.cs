@@ -1,4 +1,6 @@
-﻿using FootballGroupManager.Infrastructure.Data;
+﻿using FootballGroupManager.Application.Interfaces;
+using FootballGroupManager.Infrastructure.Data;
+using FootballGroupManager.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace FootballGroupManager.Api.Extensions
@@ -12,6 +14,9 @@ namespace FootballGroupManager.Api.Extensions
             services.AddDbContext<FootballDbContext>(options =>
                 options.UseSqlServer(
                     configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+            services.AddScoped<IGrupoRepository, GrupoRepository>();
 
             return services;
         }

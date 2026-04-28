@@ -10,4 +10,12 @@
     <ProjectReference Include="..\FootballGroupManager.Domain\FootballGroupManager.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Services\Jugadores\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+  </ItemGroup>
+
 </Project>

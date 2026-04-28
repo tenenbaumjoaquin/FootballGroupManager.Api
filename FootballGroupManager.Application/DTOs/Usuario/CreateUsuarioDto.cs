@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿// CreateUsuarioDto.cs
 namespace FootballGroupManager.Application.DTOs.Usuario
 {
-    internal class CreateUsuarioDto
+    public class CreateUsuarioDto
     {
+        public string NombreUsuario { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public string Nombre { get; set; } = string.Empty;
+        public string Posicion { get; set; } = string.Empty;
+        public Dictionary<string, int> Stats { get; set; } = new();
     }
 }
