@@ -1,15 +1,11 @@
-﻿// Extensions/ServiceCollectionExtensions.cs
-using FootballGroupManager.Application.Interfaces;
-using FootballGroupManager.Application.Services.Jugadores;
-
-namespace FootballGroupManager.Api.Extensions
+﻿namespace FootballGroupManager.Api.Extensions
 {
     public static class ServiceCollectionExtensions
     {
         public static IServiceCollection AddApplicationServices(
             this IServiceCollection services)
         {
-            services.AddScoped<IJugadorService, JugadorService>();
+            // Los servicios se registran acá a medida que los creamos
             return services;
         }
     }

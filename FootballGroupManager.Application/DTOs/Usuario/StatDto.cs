@@ -1,4 +1,5 @@
-﻿namespace FootballGroupManager.Application.DTOs
+﻿// StatDto.cs
+namespace FootballGroupManager.Application.DTOs.Usuario
 {
     public class StatDto
     {

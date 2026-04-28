@@ -1,11 +1,10 @@
-﻿namespace FootballGroupManager.Application.DTOs
+﻿// UpdateUsuarioDto.cs
+namespace FootballGroupManager.Application.DTOs.Usuario
 {
-    public class CreateJugadorDto
+    public class UpdateUsuarioDto
     {
         public string Nombre { get; set; } = string.Empty;
         public string Posicion { get; set; } = string.Empty;
-
-        // Mismo formato que UpdateJugadorDto — consistencia en toda la API
         public Dictionary<string, int> Stats { get; set; } = new();
     }
 }

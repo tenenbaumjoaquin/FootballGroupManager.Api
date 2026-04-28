@@ -1,7 +1,6 @@
 ﻿using FootballGroupManager.Domain.Entities;
+using FootballGroupManager.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Reflection.Emit;
 
 namespace FootballGroupManager.Infrastructure.Data
 {
@@ -10,35 +9,51 @@ namespace FootballGroupManager.Infrastructure.Data
         public FootballDbContext(DbContextOptions<FootballDbContext> options)
             : base(options) { }
 
-        public DbSet<Jugador> Jugadores => Set<Jugador>();
+        public DbSet<Usuario> Usuarios => Set<Usuario>();
+        public DbSet<Grupo> Grupos => Set<Grupo>();
+        public DbSet<GrupoUsuario> GrupoUsuarios => Set<GrupoUsuario>();
+        public DbSet<Partido> Partidos => Set<Partido>();
+        public DbSet<PartidoJugador> PartidoJugadores => Set<PartidoJugador>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Jugador>(entity =>
+            // ─── USUARIO ───────────────────────────────────────────────
+            modelBuilder.Entity<Usuario>(entity =>
             {
-                entity.ToTable("Jugadores");
+                entity.ToTable("Usuarios");
+                entity.HasKey(u => u.Id);
+                entity.Property(u => u.Id).ValueGeneratedOnAdd();
 
-                entity.HasKey(j => j.Id);
+                entity.Property(u => u.NombreUsuario)
+                    .IsRequired()
+                    .HasMaxLength(50);
 
-                entity.Property(j => j.Id)
-                    .ValueGeneratedOnAdd();
-
-                entity.Property(j => j.Nombre)
+                entity.Property(u => u.Email)
                     .IsRequired()
                     .HasMaxLength(100);
 
-                entity.Property(j => j.Posicion)
+                entity.HasIndex(u => u.Email).IsUnique();
+                entity.HasIndex(u => u.NombreUsuario).IsUnique();
+
+                entity.Property(u => u.PasswordHash)
+                    .IsRequired();
+
+                entity.Property(u => u.Nombre)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(u => u.Posicion)
                     .IsRequired()
                     .HasMaxLength(3);
 
-                entity.Property(j => j.Calificacion)
+                entity.Property(u => u.Calificacion)
                     .IsRequired()
                     .HasMaxLength(1);
 
-                entity.Property(j => j.PuntajeTotal)
+                entity.Property(u => u.PuntajeTotal)
                     .HasColumnType("decimal(4,2)");
 
-                entity.OwnsOne(j => j.Stats, stats =>
+                entity.OwnsOne(u => u.Stats, stats =>
                 {
                     stats.UsePropertyAccessMode(PropertyAccessMode.Field);
                     stats.Property(s => s.Velocidad).HasColumnName("VEL").IsRequired();
@@ -53,6 +68,98 @@ namespace FootballGroupManager.Infrastructure.Data
                     stats.Property(s => s.Reflejo).HasColumnName("REF").IsRequired();
                 });
             });
+
+            // ─── GRUPO ─────────────────────────────────────────────────
+            modelBuilder.Entity<Grupo>(entity =>
+            {
+                entity.ToTable("Grupos");
+                entity.HasKey(g => g.Id);
+                entity.Property(g => g.Id).ValueGeneratedOnAdd();
+
+                entity.Property(g => g.Nombre)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(g => g.Codigo)
+                    .IsRequired()
+                    .HasMaxLength(6);
+
+                entity.HasIndex(g => g.Codigo).IsUnique();
+
+                entity.Property(g => g.FechaCreacion).IsRequired();
+
+                entity.HasOne(g => g.Creador)
+                    .WithMany(u => u.GruposCreados)
+                    .HasForeignKey(g => g.CreadorId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ─── GRUPO USUARIO ──────────────────────────────────────────
+            modelBuilder.Entity<GrupoUsuario>(entity =>
+            {
+                entity.ToTable("GrupoUsuarios");
+
+                // Clave primaria compuesta — un usuario no puede estar dos veces en el mismo grupo
+                entity.HasKey(gu => new { gu.GrupoId, gu.UsuarioId });
+
+                entity.Property(gu => gu.FechaIngreso).IsRequired();
+                entity.Property(gu => gu.EsCapitan).IsRequired();
+
+                entity.HasOne(gu => gu.Grupo)
+                    .WithMany(g => g.Miembros)
+                    .HasForeignKey(gu => gu.GrupoId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(gu => gu.Usuario)
+                    .WithMany(u => u.Membresias)
+                    .HasForeignKey(gu => gu.UsuarioId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ─── PARTIDO ───────────────────────────────────────────────
+            modelBuilder.Entity<Partido>(entity =>
+            {
+                entity.ToTable("Partidos");
+                entity.HasKey(p => p.Id);
+                entity.Property(p => p.Id).ValueGeneratedOnAdd();
+
+                entity.Property(p => p.FechaCreacion).IsRequired();
+                entity.Property(p => p.FechaJugado).IsRequired(false);
+
+                entity.Property(p => p.Estado)
+                    .IsRequired()
+                    .HasConversion<string>(); // Guarda "Abierto", "Cerrado", "Jugado" en lugar de 0, 1, 2
+
+                entity.HasOne(p => p.Grupo)
+                    .WithMany(g => g.Partidos)
+                    .HasForeignKey(p => p.GrupoId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ─── PARTIDO JUGADOR ────────────────────────────────────────
+            modelBuilder.Entity<PartidoJugador>(entity =>
+            {
+                entity.ToTable("PartidoJugadores");
+
+                // Clave primaria compuesta
+                entity.HasKey(pj => new { pj.PartidoId, pj.UsuarioId });
+
+                entity.Property(pj => pj.FechaConfirmacion).IsRequired();
+
+                entity.Property(pj => pj.EquipoAsignado)
+                    .IsRequired(false)
+                    .HasConversion<string>(); // Guarda "A" o "B" en lugar de 0 o 1
+
+                entity.HasOne(pj => pj.Partido)
+                    .WithMany(p => p.Jugadores)
+                    .HasForeignKey(pj => pj.PartidoId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(pj => pj.Usuario)
+                    .WithMany()
+                    .HasForeignKey(pj => pj.UsuarioId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
         }
     }
-}   
+}
