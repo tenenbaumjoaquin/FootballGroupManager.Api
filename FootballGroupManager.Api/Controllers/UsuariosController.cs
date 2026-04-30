@@ -1,9 +1,12 @@
 ﻿using FootballGroupManager.Application.DTOs.Usuario;
 using FootballGroupManager.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace FootballGroupManager.Api.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UsuariosController : ControllerBase
@@ -15,45 +18,32 @@ namespace FootballGroupManager.Api.Controllers
             _service = service;
         }
 
-        // GET api/usuarios
-        [HttpGet]
-        public async Task<IActionResult> ObtenerTodos()
-        {
-            var usuarios = await _service.ObtenerTodosAsync();
-            return Ok(usuarios);
-        }
+        private int ObtenerUsuarioId() =>
+            int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-        // GET api/usuarios/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> ObtenerPorId(int id)
+        // GET api/usuarios/me
+        [HttpGet("me")]
+        public async Task<IActionResult> ObtenerMiPerfil()
         {
-            var usuario = await _service.ObtenerPorIdAsync(id);
+            var usuario = await _service.ObtenerPorIdAsync(ObtenerUsuarioId());
             if (usuario is null)
-                return NotFound($"No se encontró un usuario con ID {id}.");
+                return NotFound();
             return Ok(usuario);
         }
 
-        // POST api/usuarios
-        [HttpPost]
-        public async Task<IActionResult> Crear([FromBody] CreateUsuarioDto dto)
+        // PUT api/usuarios/me
+        [HttpPut("me")]
+        public async Task<IActionResult> ActualizarMiPerfil([FromBody] UpdateUsuarioDto dto)
         {
-            var usuario = await _service.CrearAsync(dto);
-            return CreatedAtAction(nameof(ObtenerPorId), new { id = usuario.Id }, usuario);
-        }
-
-        // PUT api/usuarios/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> ActualizarPerfil(int id, [FromBody] UpdateUsuarioDto dto)
-        {
-            var usuario = await _service.ActualizarPerfilAsync(id, dto);
+            var usuario = await _service.ActualizarPerfilAsync(ObtenerUsuarioId(), dto);
             return Ok(usuario);
         }
 
-        // DELETE api/usuarios/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Eliminar(int id)
+        // DELETE api/usuarios/me
+        [HttpDelete("me")]
+        public async Task<IActionResult> EliminarMiCuenta()
         {
-            await _service.EliminarAsync(id);
+            await _service.EliminarAsync(ObtenerUsuarioId());
             return NoContent();
         }
     }

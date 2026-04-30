@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// IPartidoRepository.cs
+using FootballGroupManager.Domain.Entities;
 
 namespace FootballGroupManager.Application.Interfaces
 {
-    internal interface IPartidoRepository
+    public interface IPartidoRepository
     {
+        Task<Partido?> ObtenerPorIdAsync(int id);
+        Task<Partido?> ObtenerActivoPorGrupoAsync(int grupoId);
+        Task<IEnumerable<Partido>> ObtenerHistorialPorGrupoAsync(int grupoId);
+        Task AgregarAsync(Partido partido);
+        Task ActualizarAsync(Partido partido);
     }
 }
