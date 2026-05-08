@@ -1,4 +1,5 @@
-﻿using FootballGroupManager.Application.Interfaces;
+﻿using FootballGroupManager.Application.DTOs.Partido;
+using FootballGroupManager.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -27,6 +28,14 @@ namespace FootballGroupManager.Api.Controllers
             var partido = await _service.ObtenerActivoPorGrupoAsync(grupoId);
             if (partido is null)
                 return NotFound($"No hay un partido activo en el grupo {grupoId}.");
+            return Ok(partido);
+        }
+
+        // PUT api/partidos/5/detalles
+        [HttpPut("{partidoId}/detalles")]
+        public async Task<IActionResult> ActualizarDetalles(int partidoId, [FromBody] ActualizarDetallesPartidoDto dto)
+        {
+            var partido = await _service.ActualizarDetallesAsync(partidoId, dto);
             return Ok(partido);
         }
 

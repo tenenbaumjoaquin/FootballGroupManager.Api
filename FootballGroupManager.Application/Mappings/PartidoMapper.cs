@@ -14,6 +14,10 @@ namespace FootballGroupManager.Application.Mappings
                 Estado = partido.Estado.ToString(),
                 FechaCreacion = partido.FechaCreacion,
                 FechaJugado = partido.FechaJugado,
+                FechaHora = partido.FechaHora,
+                Direccion = partido.Direccion,
+                Latitud = partido.Latitud,
+                Longitud = partido.Longitud,
                 Jugadores = partido.Jugadores
                     .Select(pj => new PartidoJugadorDto
                     {

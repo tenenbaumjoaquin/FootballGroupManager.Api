@@ -86,5 +86,14 @@ namespace FootballGroupManager.Application.Services.Partidos
             await _partidoRepositorio.ActualizarAsync(partido);
             return PartidoMapper.ToDto(partido);
         }
+        public async Task<PartidoDto> ActualizarDetallesAsync(int partidoId, ActualizarDetallesPartidoDto dto)
+        {
+            var partido = await _partidoRepositorio.ObtenerPorIdAsync(partidoId)
+                ?? throw new DomainException($"No se encontró un partido con ID {partidoId}.");
+
+            partido.ActualizarDetalles(dto.FechaHora, dto.Direccion, dto.Latitud, dto.Longitud);
+            await _partidoRepositorio.ActualizarAsync(partido);
+            return PartidoMapper.ToDto(partido);
+        }
     }
 }

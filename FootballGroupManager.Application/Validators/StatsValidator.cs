@@ -17,7 +17,7 @@ namespace FootballGroupManager.Application.Validators
 
             RuleForEach(stats => stats)
                 .Must(kvp => kvp.Value >= 0 && kvp.Value <= 10)
-                .WithMessage(kvp => $"El valor de {kvp.Key} debe estar entre 0 y 10.");
+                .WithMessage("Cada estadística debe tener un valor entre 0 y 10.");
         }
     }
 }

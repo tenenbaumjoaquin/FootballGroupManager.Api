@@ -11,6 +11,10 @@ namespace FootballGroupManager.Domain.Entities
         public DateTime FechaCreacion { get; private set; }
         public DateTime? FechaJugado { get; private set; }
         public EstadoPartido Estado { get; private set; }
+        public DateTime? FechaHora { get; private set; }
+        public string? Direccion { get; private set; }
+        public double? Latitud { get; private set; }
+        public double? Longitud { get; private set; }
 
         private readonly List<PartidoJugador> _jugadores = new();
         public IReadOnlyList<PartidoJugador> Jugadores => _jugadores;
@@ -67,6 +71,16 @@ namespace FootballGroupManager.Domain.Entities
                 ?? throw new DomainException("El usuario no confirmó asistencia en este partido.");
 
             _jugadores.Remove(jugador);
+        }
+        public void ActualizarDetalles(DateTime? fechaHora, string? direccion, double? latitud, double? longitud)
+        {
+            if (Estado == EstadoPartido.Jugado)
+                throw new DomainException("No se pueden modificar los detalles de un partido ya jugado.");
+
+            FechaHora = fechaHora;
+            Direccion = direccion;
+            Latitud = latitud;
+            Longitud = longitud;
         }
 
         public (List<PartidoJugador> equipoA, List<PartidoJugador> equipoB) GenerarEquipos()

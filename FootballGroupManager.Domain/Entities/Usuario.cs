@@ -1,4 +1,5 @@
 ﻿using FootballGroupManager.Domain.DomainExceptions;
+using FootballGroupManager.Domain.Services;
 using FootballGroupManager.Domain.ValueObjects;
 
 namespace FootballGroupManager.Domain.Entities
@@ -96,41 +97,7 @@ namespace FootballGroupManager.Domain.Entities
         private void CalcularCalificacion()
         {
             if (Stats is null) return;
-
-            double[] pesos = Posicion switch
-            {
-                "ARQ" => new[] { 0.8, 0.8, 1.2, 1.0, 1.2, 1.2, 1.0, 1.0, 1.5, 1.5 },
-                "DEF" => new[] { 1.2, 1.0, 1.2, 0.8, 1.5, 1.5, 0.8, 1.0, 1.0, 1.2 },
-                "VOL" => new[] { 1.2, 1.0, 1.5, 1.5, 1.2, 0.8, 1.2, 1.0, 0.8, 1.0 },
-                "DEL" => new[] { 1.2, 1.0, 1.0, 1.2, 0.8, 1.2, 1.5, 1.5, 0.8, 1.0 },
-                _ => Enumerable.Repeat(1.0, 10).ToArray()
-            };
-
-            double[] valores =
-            {
-                Stats.Velocidad, Stats.Aguante, Stats.Pase,    Stats.Gambeta,
-                Stats.Defensa,   Stats.Fisico,  Stats.Pegada,  Stats.Tiro,
-                Stats.Atajada,   Stats.Reflejo
-            };
-
-            double total = 0, totalPesos = 0;
-            for (int i = 0; i < valores.Length; i++)
-            {
-                total += valores[i] * pesos[i];
-                totalPesos += pesos[i];
-            }
-
-            double promedio = total / totalPesos;
-            PuntajeTotal = Math.Round(promedio, 2);
-            Calificacion = promedio switch
-            {
-                >= 9 => "S",
-                >= 8 => "A",
-                >= 7 => "B",
-                >= 6 => "C",
-                >= 5 => "D",
-                _ => "F"
-            };
+            (Calificacion, PuntajeTotal) = CalificacionService.Calcular(Posicion, Stats);
         }
     }
 }
