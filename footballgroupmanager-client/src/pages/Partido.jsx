@@ -1,6 +1,39 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { grupoService, partidoService } from '../services/api'
+import fondo from '../assets/fondo.png'
+
+const PixelBox = ({ children, style = {}, onClick }) => (
+  <div onClick={onClick} style={{
+    position: 'relative',
+    background: '#fff',
+    clipPath: 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0% calc(100% - 6px), 0% 6px)',
+    cursor: onClick ? 'pointer' : 'default',
+    ...style,
+  }}>
+    <div style={{
+      margin: '2px',
+      background: style.innerBackground || '#000',
+      clipPath: 'polygon(5px 0%, calc(100% - 5px) 0%, 100% 5px, 100% calc(100% - 5px), calc(100% - 5px) 100%, 5px 100%, 0% calc(100% - 5px), 0% 5px)',
+      padding: style.padding || '12px 16px',
+    }}>
+      {children}
+    </div>
+  </div>
+)
+
+const ESTADO_COLORS = {
+  Abierto: '#4cff4c',
+  Cerrado: '#f0c040',
+  Jugado:  '#888',
+}
+
+const POSICION_LABEL = {
+  ARQ: '🧤 ARQ',
+  DEF: '🛡️ DEF',
+  VOL: '⚙️ VOL',
+  DEL: '⚡ DEL',
+}
 
 function Partido() {
   const { grupoId } = useParams()
@@ -12,9 +45,7 @@ function Partido() {
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
 
-  useEffect(() => {
-    cargarDatos()
-  }, [])
+  useEffect(() => { cargarDatos() }, [])
 
   const cargarDatos = async () => {
     try {
@@ -25,7 +56,7 @@ function Partido() {
       if (resGrupo.status === 'fulfilled') setGrupo(resGrupo.value.data)
       if (resPartido.status === 'fulfilled') setPartido(resPartido.value.data)
     } catch {
-      setError('Error al cargar los datos.')
+      setError('ERROR AL CARGAR LOS DATOS.')
     } finally {
       setCargando(false)
     }
@@ -35,8 +66,9 @@ function Partido() {
     try {
       const res = await partidoService.crear(grupoId)
       setPartido(res.data)
+      setError('')
     } catch (err) {
-      setError(err.response?.data?.mensaje || 'Error al crear el partido.')
+      setError(err.response?.data?.mensaje || 'ERROR AL CREAR EL PARTIDO.')
     }
   }
 
@@ -44,8 +76,9 @@ function Partido() {
     try {
       const res = await partidoService.confirmar(partido.id)
       setPartido(res.data)
+      setError('')
     } catch (err) {
-      setError(err.response?.data?.mensaje || 'Error al confirmar asistencia.')
+      setError(err.response?.data?.mensaje || 'ERROR AL CONFIRMAR.')
     }
   }
 
@@ -53,8 +86,9 @@ function Partido() {
     try {
       const res = await partidoService.cancelar(partido.id)
       setPartido(res.data)
+      setError('')
     } catch (err) {
-      setError(err.response?.data?.mensaje || 'Error al cancelar asistencia.')
+      setError(err.response?.data?.mensaje || 'ERROR AL CANCELAR.')
     }
   }
 
@@ -62,8 +96,9 @@ function Partido() {
     try {
       const res = await partidoService.generarEquipos(partido.id)
       setPartido(res.data)
+      setError('')
     } catch (err) {
-      setError(err.response?.data?.mensaje || 'Error al generar equipos.')
+      setError(err.response?.data?.mensaje || 'ERROR AL GENERAR EQUIPOS.')
     }
   }
 
@@ -71,8 +106,9 @@ function Partido() {
     try {
       const res = await partidoService.marcarJugado(partido.id)
       setPartido(res.data)
+      setError('')
     } catch (err) {
-      setError(err.response?.data?.mensaje || 'Error al marcar como jugado.')
+      setError(err.response?.data?.mensaje || 'ERROR AL MARCAR COMO JUGADO.')
     }
   }
 
@@ -80,90 +116,120 @@ function Partido() {
   const equipoA = partido?.jugadores.filter(j => j.equipoAsignado === 'A') || []
   const equipoB = partido?.jugadores.filter(j => j.equipoAsignado === 'B') || []
   const sinEquipo = partido?.jugadores.filter(j => !j.equipoAsignado) || []
+  const puntajeA = equipoA.reduce((acc, j) => acc + j.usuario.puntajeTotal, 0).toFixed(2)
+  const puntajeB = equipoB.reduce((acc, j) => acc + j.usuario.puntajeTotal, 0).toFixed(2)
 
-  if (cargando) return <p style={styles.mensaje}>Cargando...</p>
+  if (cargando) return (
+    <div style={{ ...styles.container, backgroundImage: `url(${fondo})` }}>
+      <p style={styles.mensaje}>CARGANDO...</p>
+    </div>
+  )
 
   return (
-    <div style={styles.container}>
-      <header style={styles.header}>
-        <button style={styles.volver} onClick={() => navigate('/grupos')}>
-          ← Volver
-        </button>
-        <h1 style={styles.titulo}>{grupo?.nombre}</h1>
-        <span style={styles.codigo}>Código: {grupo?.codigo}</span>
-      </header>
+    <div style={{ ...styles.container, backgroundImage: `url(${fondo})` }}>
 
-      <main style={styles.main}>
+      {/* Header */}
+      <div style={styles.header}>
+        <PixelBox onClick={() => navigate('/grupos')}>
+          <span style={styles.botonTextoSm}>&lt; VOLVER</span>
+        </PixelBox>
+        <div style={styles.headerCentro}>
+          <span style={styles.headerNombre}>
+            {grupo?.nombre?.toUpperCase()}
+          </span>
+          <span style={styles.headerCodigo}>
+            COD: {grupo?.codigo}
+          </span>
+        </div>
+        <div style={styles.headerMiembros}>
+          <span style={styles.infoLabel}>MIEMBROS</span>
+          <span style={styles.infoValor}>{(grupo?.miembros?.length || 0) + 1}</span>
+        </div>
+      </div>
+
+      <div style={styles.contenido}>
         {error && <p style={styles.error}>{error}</p>}
 
+        {/* Sin partido activo */}
         {!partido ? (
-          <div style={styles.vacio}>
-            <p style={styles.vaciomensaje}>No hay ningún partido activo en este grupo.</p>
-            <button style={styles.boton} onClick={handleCrearPartido}>
-              + Crear partido
-            </button>
+          <div style={styles.centrado}>
+            <p style={styles.mensajeGrande}>NO HAY PARTIDO ACTIVO</p>
+            <PixelBox style={{ innerBackground: '#1a7a1a' }} onClick={handleCrearPartido}>
+              <span style={styles.botonTexto}>+ CREAR PARTIDO</span>
+            </PixelBox>
           </div>
         ) : (
           <>
-            {/* Estado del partido */}
+            {/* Estado bar */}
             <div style={styles.estadoBar}>
-              <span style={{
-                ...styles.estadoBadge,
-                background: partido.estado === 'Abierto' ? '#27ae60'
-                  : partido.estado === 'Cerrado' ? '#e67e22' : '#95a5a6'
-              }}>
-                {partido.estado === 'Abierto' ? '🟢 Abierto'
-                  : partido.estado === 'Cerrado' ? '🟠 Equipos generados'
-                  : '⚫ Jugado'}
-              </span>
-              <span style={styles.contador}>
-                {partido.jugadores.length}/10 jugadores
-              </span>
+              <div style={styles.estadoIzq}>
+                <span style={styles.estadoLabel}>ESTADO</span>
+                <span style={{
+                  ...styles.estadoBadge,
+                  color: ESTADO_COLORS[partido.estado] || '#fff',
+                  borderColor: ESTADO_COLORS[partido.estado] || '#fff',
+                }}>
+                  {partido.estado.toUpperCase()}
+                </span>
+              </div>
+              <div style={styles.estadoDer}>
+                <span style={styles.estadoLabel}>JUGADORES</span>
+                <span style={styles.estadoContador}>
+                  {partido.jugadores.length}
+                  <span style={styles.estadoMax}>/10</span>
+                </span>
+              </div>
             </div>
 
-            {/* Acciones según estado */}
+            {/* Acciones */}
             {partido.estado === 'Abierto' && (
               <div style={styles.acciones}>
                 {!yoConfirme ? (
-                  <button style={styles.boton} onClick={handleConfirmar}>
-                    ✅ Confirmar asistencia
-                  </button>
+                  <PixelBox style={{ innerBackground: '#1a7a1a' }} onClick={handleConfirmar}>
+                    <span style={styles.botonTexto}>✔ CONFIRMAR ASISTENCIA</span>
+                  </PixelBox>
                 ) : (
-                  <button style={styles.botonPeligro} onClick={handleCancelar}>
-                    ❌ Cancelar asistencia
-                  </button>
+                  <PixelBox style={{ innerBackground: '#7a1a1a' }} onClick={handleCancelar}>
+                    <span style={styles.botonTexto}>✖ CANCELAR ASISTENCIA</span>
+                  </PixelBox>
                 )}
                 {partido.jugadores.length === 10 && (
-                  <button style={styles.botonDestacado} onClick={handleGenerarEquipos}>
-                    ⚡ Generar equipos
-                  </button>
+                  <PixelBox style={{ innerBackground: '#7a5a00' }} onClick={handleGenerarEquipos}>
+                    <span style={styles.botonTexto}>⚡ GENERAR EQUIPOS</span>
+                  </PixelBox>
                 )}
               </div>
             )}
 
             {partido.estado === 'Cerrado' && (
               <div style={styles.acciones}>
-                <button style={styles.botonSecundario} onClick={handleMarcarJugado}>
-                  🏁 Marcar como jugado
-                </button>
+                <PixelBox onClick={handleMarcarJugado}>
+                  <span style={styles.botonTexto}>🏁 MARCAR COMO JUGADO</span>
+                </PixelBox>
               </div>
             )}
 
-            {/* Lista de jugadores confirmados */}
+            {/* Lista jugadores confirmados */}
             {partido.estado === 'Abierto' && (
               <div style={styles.seccion}>
-                <h3 style={styles.seccionTitulo}>
-                  Jugadores confirmados ({partido.jugadores.length}/10)
-                </h3>
+                <h3 style={styles.seccionTitulo}>JUGADORES CONFIRMADOS</h3>
                 {sinEquipo.length === 0 ? (
-                  <p style={styles.vacioPequeno}>Nadie confirmó todavía.</p>
+                  <p style={styles.mensajeVacio}>NADIE CONFIRMO TODAVIA</p>
                 ) : (
                   <div style={styles.listaJugadores}>
                     {sinEquipo.map((pj, i) => (
-                      <div key={i} style={styles.jugadorCard}>
-                        <span style={styles.jugadorNombre}>{pj.usuario.nombre}</span>
-                        <span style={styles.jugadorPos}>{pj.usuario.posicion}</span>
-                        <span style={styles.jugadorPuntaje}>⭐ {pj.usuario.puntajeTotal}</span>
+                      <div key={i} style={styles.jugadorCardWrapper}>
+                        <div style={styles.jugadorCardInner}>
+                          <span style={styles.jugadorNombre}>
+                            {pj.usuario.nombre.toUpperCase()}
+                          </span>
+                          <span style={styles.jugadorPos}>
+                            {POSICION_LABEL[pj.usuario.posicion]}
+                          </span>
+                          <span style={styles.jugadorPuntaje}>
+                            ★ {pj.usuario.puntajeTotal}
+                          </span>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -171,128 +237,257 @@ function Partido() {
               </div>
             )}
 
-            {/* Equipos generados */}
+            {/* Equipos */}
             {(partido.estado === 'Cerrado' || partido.estado === 'Jugado') && (
-              <div style={styles.equipos}>
-                <div style={styles.equipo}>
-                  <h3 style={{ ...styles.equipoTitulo, background: '#1a1a2e' }}>
-                    Equipo A
-                  </h3>
-                  <div style={styles.listaJugadores}>
-                    {equipoA.map((pj, i) => (
-                      <div key={i} style={styles.jugadorCard}>
-                        <span style={styles.jugadorNombre}>{pj.usuario.nombre}</span>
-                        <span style={styles.jugadorPos}>{pj.usuario.posicion}</span>
-                        <span style={styles.jugadorPuntaje}>⭐ {pj.usuario.puntajeTotal}</span>
+              <div style={styles.equiposGrid}>
+                {[
+                  { letra: 'A', jugadores: equipoA, puntaje: puntajeA, color: '#4cff4c' },
+                  { letra: 'B', jugadores: equipoB, puntaje: puntajeB, color: '#f0c040' },
+                ].map(equipo => (
+                  <div key={equipo.letra} style={styles.equipoWrapper}>
+                    <div style={styles.equipoInner}>
+                      <div style={{
+                        ...styles.equipoHeader,
+                        borderBottom: `3px solid ${equipo.color}`,
+                      }}>
+                        <span style={{ ...styles.equipoTitulo, color: equipo.color }}>
+                          EQUIPO {equipo.letra}
+                        </span>
+                        <span style={{ ...styles.equipoPuntaje, color: equipo.color }}>
+                          ★ {equipo.puntaje}
+                        </span>
                       </div>
-                    ))}
-                  </div>
-                  <p style={styles.puntajeTotal}>
-                    Puntaje total: {equipoA.reduce((acc, pj) => acc + pj.usuario.puntajeTotal, 0).toFixed(2)}
-                  </p>
-                </div>
-
-                <div style={styles.equipo}>
-                  <h3 style={{ ...styles.equipoTitulo, background: '#0f3460' }}>
-                    Equipo B
-                  </h3>
-                  <div style={styles.listaJugadores}>
-                    {equipoB.map((pj, i) => (
-                      <div key={i} style={styles.jugadorCard}>
-                        <span style={styles.jugadorNombre}>{pj.usuario.nombre}</span>
-                        <span style={styles.jugadorPos}>{pj.usuario.posicion}</span>
-                        <span style={styles.jugadorPuntaje}>⭐ {pj.usuario.puntajeTotal}</span>
+                      <div style={styles.listaJugadores}>
+                        {equipo.jugadores.map((pj, i) => (
+                          <div key={i} style={styles.jugadorCardWrapper}>
+                            <div style={styles.jugadorCardInner}>
+                              <span style={styles.jugadorNombre}>
+                                {pj.usuario.nombre.toUpperCase()}
+                              </span>
+                              <span style={styles.jugadorPos}>
+                                {POSICION_LABEL[pj.usuario.posicion]}
+                              </span>
+                              <span style={styles.jugadorPuntaje}>
+                                ★ {pj.usuario.puntajeTotal}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    </div>
                   </div>
-                  <p style={styles.puntajeTotal}>
-                    Puntaje total: {equipoB.reduce((acc, pj) => acc + pj.usuario.puntajeTotal, 0).toFixed(2)}
-                  </p>
-                </div>
+                ))}
               </div>
             )}
           </>
         )}
-      </main>
+      </div>
     </div>
   )
 }
 
 const styles = {
-  container: { minHeight: '100vh', background: '#f0f4f8' },
+  container: {
+    minHeight: '100vh',
+    backgroundSize: 'cover',
+    backgroundRepeat: 'repeat',
+    display: 'flex',
+    flexDirection: 'column',
+  },
   header: {
-    background: 'linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%)',
-    padding: '16px 32px', display: 'flex',
-    alignItems: 'center', gap: '20px',
+    background: 'rgba(0,0,0,0.9)',
+    borderBottom: '3px solid #4cff4c',
+    padding: '12px 24px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '16px',
   },
-  volver: {
-    background: 'transparent', border: '1px solid rgba(255,255,255,0.3)',
-    color: 'white', padding: '8px 14px', borderRadius: '8px', fontSize: '14px',
+  headerCentro: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '4px',
   },
-  titulo: { color: 'white', fontSize: '20px', flex: 1 },
-  codigo: { color: '#aaa', fontSize: '13px' },
-  main: { padding: '32px', maxWidth: '900px', margin: '0 auto' },
-  error: { color: '#e74c3c', marginBottom: '16px', textAlign: 'center' },
-  mensaje: { textAlign: 'center', padding: '60px', color: '#888' },
-  vacio: {
-    textAlign: 'center', padding: '60px', background: 'white',
-    borderRadius: '12px', boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+  headerNombre: {
+    color: '#f0c040',
+    fontSize: '13px',
+    fontWeight: '700',
+    letterSpacing: '2px',
   },
-  vaciomensaje: { color: '#888', marginBottom: '24px', fontSize: '16px' },
-  vacioPequeno: { color: '#aaa', fontSize: '14px', padding: '16px 0' },
+  headerCodigo: {
+    color: '#888',
+    fontSize: '9px',
+    letterSpacing: '1px',
+  },
+  headerMiembros: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '4px',
+  },
+  contenido: {
+    padding: '24px',
+    maxWidth: '960px',
+    margin: '0 auto',
+    width: '100%',
+  },
+  error: {
+    color: '#ff4c4c',
+    fontSize: '10px',
+    marginBottom: '16px',
+    textAlign: 'center',
+    lineHeight: '1.6',
+  },
+  mensaje: {
+    color: '#4cff4c',
+    textAlign: 'center',
+    fontSize: '12px',
+    padding: '40px',
+  },
+  mensajeGrande: {
+    color: '#4cff4c',
+    fontSize: '14px',
+    letterSpacing: '2px',
+    marginBottom: '24px',
+    textAlign: 'center',
+  },
+  mensajeVacio: {
+    color: '#555',
+    fontSize: '10px',
+    textAlign: 'center',
+    padding: '20px',
+    letterSpacing: '1px',
+  },
+  centrado: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '60px 20px',
+    gap: '20px',
+  },
   estadoBar: {
-    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    marginBottom: '24px', background: 'white', padding: '16px 20px',
-    borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+    background: 'rgba(0,0,0,0.85)',
+    border: '2px solid #1a7a1a',
+    clipPath: 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0% calc(100% - 8px), 0% 8px)',
+    padding: '16px 24px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '20px',
   },
+  estadoIzq: { display: 'flex', flexDirection: 'column', gap: '6px' },
+  estadoDer: { display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' },
+  estadoLabel: { color: '#4cff4c', fontSize: '9px', letterSpacing: '1px' },
   estadoBadge: {
-    color: 'white', padding: '6px 14px', borderRadius: '20px', fontSize: '14px',
+    fontSize: '12px',
+    fontWeight: '700',
+    letterSpacing: '2px',
+    border: '2px solid',
+    padding: '4px 10px',
+    clipPath: 'polygon(4px 0%, calc(100% - 4px) 0%, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 0% calc(100% - 4px), 0% 4px)',
   },
-  contador: { color: '#444', fontWeight: '600', fontSize: '15px' },
-  acciones: { display: 'flex', gap: '12px', marginBottom: '24px' },
+  estadoContador: { color: '#fff', fontSize: '20px', fontWeight: '900' },
+  estadoMax: { color: '#555', fontSize: '14px' },
+  acciones: {
+    display: 'flex',
+    gap: '12px',
+    marginBottom: '20px',
+    flexWrap: 'wrap',
+  },
   seccion: {
-    background: 'white', borderRadius: '12px', padding: '24px',
-    boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+    background: 'rgba(0,0,0,0.85)',
+    border: '2px solid #1a7a1a',
+    clipPath: 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0% calc(100% - 8px), 0% 8px)',
+    padding: '20px',
   },
-  seccionTitulo: { fontSize: '16px', marginBottom: '16px', color: '#1a1a2e' },
-  equipos: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' },
-  equipo: {
-    background: 'white', borderRadius: '12px', overflow: 'hidden',
-    boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+  seccionTitulo: {
+    color: '#4cff4c',
+    fontSize: '11px',
+    letterSpacing: '2px',
+    marginBottom: '16px',
+  },
+  listaJugadores: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+  },
+  jugadorCardWrapper: {
+    background: '#4cff4c',
+    clipPath: 'polygon(5px 0%, calc(100% - 5px) 0%, 100% 5px, 100% calc(100% - 5px), calc(100% - 5px) 100%, 5px 100%, 0% calc(100% - 5px), 0% 5px)',
+  },
+  jugadorCardInner: {
+    margin: '2px',
+    background: '#111',
+    clipPath: 'polygon(4px 0%, calc(100% - 4px) 0%, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 0% calc(100% - 4px), 0% 4px)',
+    padding: '10px 14px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+  },
+  jugadorNombre: {
+    flex: 1,
+    color: '#fff',
+    fontSize: '10px',
+    fontWeight: '700',
+    letterSpacing: '1px',
+  },
+  jugadorPos: {
+    color: '#4cff4c',
+    fontSize: '9px',
+    fontWeight: '700',
+  },
+  jugadorPuntaje: {
+    color: '#f0c040',
+    fontSize: '10px',
+    fontWeight: '900',
+  },
+  equiposGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '20px',
+  },
+  equipoWrapper: {
+    background: '#fff',
+    clipPath: 'polygon(10px 0%, calc(100% - 10px) 0%, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0% calc(100% - 10px), 0% 10px)',
+  },
+  equipoInner: {
+    margin: '2px',
+    background: '#000',
+    clipPath: 'polygon(9px 0%, calc(100% - 9px) 0%, 100% 9px, 100% calc(100% - 9px), calc(100% - 9px) 100%, 9px 100%, 0% calc(100% - 9px), 0% 9px)',
+    padding: '0',
+    overflow: 'hidden',
+  },
+  equipoHeader: {
+    padding: '14px 16px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '4px',
   },
   equipoTitulo: {
-    color: 'white', padding: '14px 20px', fontSize: '16px', fontWeight: '600',
+    fontSize: '13px',
+    fontWeight: '900',
+    letterSpacing: '2px',
   },
-  listaJugadores: { padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px' },
-  jugadorCard: {
-    display: 'flex', alignItems: 'center', gap: '10px',
-    padding: '10px 14px', background: '#f8f9fa', borderRadius: '8px',
+  equipoPuntaje: {
+    fontSize: '12px',
+    fontWeight: '900',
   },
-  jugadorNombre: { flex: 1, fontWeight: '500', fontSize: '14px' },
-  jugadorPos: {
-    fontSize: '12px', background: '#e8f4fd', color: '#0f3460',
-    padding: '3px 8px', borderRadius: '12px', fontWeight: '600',
+  infoLabel: { color: '#4cff4c', fontSize: '9px', letterSpacing: '1px' },
+  infoValor: { color: '#fff', fontSize: '11px', fontWeight: '700' },
+  botonTexto: {
+    color: '#fff', fontSize: '11px',
+    fontWeight: '900', letterSpacing: '1px',
+    textAlign: 'center', cursor: 'pointer',
+    fontFamily: "'Press Start 2P', cursive",
   },
-  jugadorPuntaje: { fontSize: '13px', color: '#666' },
-  puntajeTotal: {
-    padding: '12px 20px', borderTop: '1px solid #eee',
-    fontSize: '14px', fontWeight: '600', color: '#444', textAlign: 'right',
-  },
-  boton: {
-    padding: '12px 24px', background: '#0f3460', color: 'white',
-    border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: '600',
-  },
-  botonDestacado: {
-    padding: '12px 24px', background: '#27ae60', color: 'white',
-    border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: '600',
-  },
-  botonPeligro: {
-    padding: '12px 24px', background: '#e74c3c', color: 'white',
-    border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: '600',
-  },
-  botonSecundario: {
-    padding: '12px 24px', background: 'transparent', color: '#0f3460',
-    border: '1.5px solid #0f3460', borderRadius: '8px', fontSize: '15px',
+  botonTextoSm: {
+    color: '#fff', fontSize: '9px',
+    fontWeight: '900', letterSpacing: '1px',
+    cursor: 'pointer',
+    fontFamily: "'Press Start 2P', cursive",
   },
 }
 

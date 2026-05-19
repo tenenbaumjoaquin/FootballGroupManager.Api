@@ -120,7 +120,7 @@ const styles = {
     padding: '20px',
   },
   logo: {
-    width: '360px',
+    width: '600px',
     maxWidth: '90%',
     marginBottom: '20px',
     filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.8))',
