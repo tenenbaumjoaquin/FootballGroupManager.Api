@@ -1,12 +1,36 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { authService } from '../services/api'
+import {
+  RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Tooltip, ResponsiveContainer
+} from 'recharts'
+import logo from '../assets/logo.png'
+import fondo from '../assets/fondo.png'
+
+const PixelBox = ({ children, style = {}, onClick }) => (
+  <div onClick={onClick} style={{
+    position: 'relative',
+    background: '#fff',
+    clipPath: 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0% calc(100% - 6px), 0% 6px)',
+    ...style,
+  }}>
+    <div style={{
+      margin: '2px',
+      background: style.innerBackground || '#000',
+      clipPath: 'polygon(5px 0%, calc(100% - 5px) 0%, 100% 5px, 100% calc(100% - 5px), calc(100% - 5px) 100%, 5px 100%, 0% calc(100% - 5px), 0% 5px)',
+      padding: style.padding || '12px 16px',
+    }}>
+      {children}
+    </div>
+  </div>
+)
 
 function Registro() {
   const navigate = useNavigate()
   const [paso, setPaso] = useState(1)
   const [error, setError] = useState('')
   const [cargando, setCargando] = useState(false)
+  const [dropdownAbierto, setDropdownAbierto] = useState(false)
 
   const [form, setForm] = useState({
     nombreUsuario: '',
@@ -20,11 +44,30 @@ function Registro() {
     }
   })
 
+  const posiciones = [
+    { valor: 'ARQ', label: 'ARQUERO',   numero: '1' },
+    { valor: 'DEF', label: 'DEFENSOR',  numero: '2' },
+    { valor: 'VOL', label: 'VOLANTE',   numero: '5' },
+    { valor: 'DEL', label: 'DELANTERO', numero: '9' },
+  ]
+
   const statsNombres = {
-    VEL: 'Velocidad', AGT: 'Aguante', PAS: 'Pase', GMB: 'Gambeta',
-    DEF: 'Defensa', FIS: 'Físico', PEG: 'Pegada', TIR: 'Tiro',
-    ATJ: 'Atajada', REF: 'Reflejo'
+    VEL: 'VEL', AGT: 'AGT', PAS: 'PAS', GMB: 'GMB',
+    DEF: 'DEF', FIS: 'FIS', PEG: 'PEG', TIR: 'TIR',
+    ATJ: 'ATJ', REF: 'REF'
   }
+
+  const statsNombresCompletos = {
+    VEL: 'VELOCIDAD', AGT: 'AGUANTE', PAS: 'PASE',    GMB: 'GAMBETA',
+    DEF: 'DEFENSA',   FIS: 'FÍSICO',  PEG: 'PEGADA',  TIR: 'TIRO',
+    ATJ: 'ATAJADA',   REF: 'REFLEJO'
+  }
+
+  const radarData = Object.entries(form.stats).map(([key, val]) => ({
+    stat: statsNombres[key],
+    valor: val,
+    fullMark: 10
+  }))
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -50,8 +93,7 @@ function Registro() {
     } catch (err) {
       const errores = err.response?.data?.errors
       if (errores) {
-        const mensajes = Object.values(errores).flat().join(' ')
-        setError(mensajes)
+        setError(Object.values(errores).flat().join(' '))
       } else {
         setError(err.response?.data?.mensaje || 'Error al registrarse.')
       }
@@ -61,127 +103,178 @@ function Registro() {
   }
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h1 style={styles.titulo}>⚽ Football Manager</h1>
-        <h2 style={styles.subtitulo}>Crear cuenta</h2>
+    <div style={{ ...styles.container, backgroundImage: `url(${fondo})` }}>
+      <img src={logo} alt="Sale Fulbo" style={styles.logo} />
 
-        {/* Indicador de pasos */}
-        <div style={styles.pasos}>
-          <div style={{ ...styles.paso, ...(paso >= 1 ? styles.pasoActivo : {}) }}>1. Cuenta</div>
-          <div style={styles.lineaPaso}></div>
-          <div style={{ ...styles.paso, ...(paso >= 2 ? styles.pasoActivo : {}) }}>2. Jugador</div>
-          <div style={styles.lineaPaso}></div>
-          <div style={{ ...styles.paso, ...(paso >= 3 ? styles.pasoActivo : {}) }}>3. Stats</div>
-        </div>
+      {/* Card principal con borde pixelado */}
+      <div style={styles.cardWrapper}>
+        <div style={styles.cardInner}>
 
-        {error && <p style={styles.error}>{error}</p>}
-
-        {/* Paso 1 — datos de cuenta */}
-        {paso === 1 && (
-          <div style={styles.form}>
-            <div style={styles.campo}>
-              <label style={styles.label}>Nombre de usuario</label>
-              <input style={styles.input} name="nombreUsuario"
-                value={form.nombreUsuario} onChange={handleChange}
-                placeholder="juanperez" required />
-            </div>
-            <div style={styles.campo}>
-              <label style={styles.label}>Email</label>
-              <input style={styles.input} type="email" name="email"
-                value={form.email} onChange={handleChange}
-                placeholder="tu@email.com" required />
-            </div>
-            <div style={styles.campo}>
-              <label style={styles.label}>Contraseña</label>
-              <input style={styles.input} type="password" name="password"
-                value={form.password} onChange={handleChange}
-                placeholder="Mínimo 6 caracteres" required />
-            </div>
-            <button style={styles.boton} onClick={() => {
-              if (!form.nombreUsuario || !form.email || !form.password) {
-                setError('Completá todos los campos.')
-                return
-              }
-              setError('')
-              setPaso(2)
-            }}>
-              Siguiente →
-            </button>
+          {/* Pasos */}
+          <div style={styles.pasos}>
+            {['1. CUENTA', '2. JUGADOR', '3. STATS'].map((label, i) => (
+              <div key={i} style={styles.pasoWrapper}>
+                <div style={{
+                  ...styles.paso,
+                  ...(paso === i + 1 ? styles.pasoActivo : {})
+                }}>
+                  {label}
+                </div>
+                {i < 2 && <span style={styles.flecha}>➔</span>}
+              </div>
+            ))}
           </div>
-        )}
 
-        {/* Paso 2 — perfil de jugador */}
-        {paso === 2 && (
-          <div style={styles.form}>
-            <div style={styles.campo}>
-              <label style={styles.label}>Tu nombre real</label>
-              <input style={styles.input} name="nombre"
-                value={form.nombre} onChange={handleChange}
-                placeholder="Juan Pérez" required />
-            </div>
-            <div style={styles.campo}>
-              <label style={styles.label}>Posición</label>
-              <select style={styles.input} name="posicion"
-                value={form.posicion} onChange={handleChange} required>
-                <option value="">Seleccioná tu posición</option>
-                <option value="ARQ">🧤 Arquero</option>
-                <option value="DEF">🛡️ Defensor</option>
-                <option value="VOL">⚙️ Volante</option>
-                <option value="DEL">⚡ Delantero</option>
-              </select>
-            </div>
-            <div style={styles.botonesPaso}>
-              <button style={styles.botonSecundario} onClick={() => setPaso(1)}>
-                ← Atrás
-              </button>
-              <button style={styles.boton} onClick={() => {
-                if (!form.nombre || !form.posicion) {
-                  setError('Completá todos los campos.')
-                  return
-                }
-                setError('')
-                setPaso(3)
-              }}>
-                Siguiente →
-              </button>
-            </div>
-          </div>
-        )}
+          <h2 style={styles.titulo}>CREA TU CUENTA</h2>
+          {error && <p style={styles.error}>{error}</p>}
 
-        {/* Paso 3 — estadísticas */}
-        {paso === 3 && (
-          <form onSubmit={handleSubmit} style={styles.form}>
-            <p style={styles.ayuda}>
-              Poné tu puntuación del 0 al 10 en cada estadística. ¡Sé honesto!
-            </p>
-            <div style={styles.statsGrid}>
-              {Object.entries(form.stats).map(([key, val]) => (
-                <div key={key} style={styles.statRow}>
-                  <label style={styles.statLabel}>{statsNombres[key]}</label>
-                  <input
-                    type="range" min="0" max="10" value={val}
-                    onChange={e => handleStat(key, e.target.value)}
-                    style={styles.slider}
-                  />
-                  <span style={styles.statValor}>{val}</span>
+          {/* PASO 1 */}
+          {paso === 1 && (
+            <div style={styles.form}>
+              {[
+                { label: 'NOMBRE DE USUARIO', name: 'nombreUsuario', type: 'text' },
+                { label: 'EMAIL', name: 'email', type: 'email' },
+                { label: 'CONTRASEÑA', name: 'password', type: 'password' },
+              ].map(campo => (
+                <div key={campo.name} style={styles.campo}>
+                  <label style={styles.label}>{campo.label}</label>
+                  <PixelBox>
+                    <input
+                      style={styles.inputInner}
+                      type={campo.type}
+                      name={campo.name}
+                      value={form[campo.name]}
+                      onChange={handleChange}
+                      autoComplete="off"
+                    />
+                  </PixelBox>
                 </div>
               ))}
+              <PixelBox style={{ innerBackground: '#1a7a1a' }}
+                onClick={() => {
+                  if (!form.nombreUsuario || !form.email || !form.password) {
+                    setError('Completá todos los campos.')
+                    return
+                  }
+                  setError('')
+                  setPaso(2)
+                }}>
+                <div style={styles.botonTexto}>SIGUIENTE &gt;</div>
+              </PixelBox>
             </div>
-            <div style={styles.botonesPaso}>
-              <button type="button" style={styles.botonSecundario} onClick={() => setPaso(2)}>
-                ← Atrás
-              </button>
-              <button type="submit" style={styles.boton} disabled={cargando}>
-                {cargando ? 'Creando cuenta...' : 'Crear cuenta ✓'}
-              </button>
-            </div>
-          </form>
-        )}
+          )}
 
-        <p style={styles.link}>
-          ¿Ya tenés cuenta? <Link to="/login">Iniciá sesión</Link>
-        </p>
+          {/* PASO 2 */}
+          {paso === 2 && (
+            <div style={styles.form}>
+              <div style={styles.campo}>
+                <label style={styles.label}>NOMBRE</label>
+                <PixelBox>
+                  <input style={styles.inputInner} name="nombre"
+                    value={form.nombre} onChange={handleChange} />
+                </PixelBox>
+              </div>
+
+              <div style={styles.campo}>
+                <label style={styles.label}>POSICION</label>
+                <div style={{ position: 'relative' }}>
+                  <PixelBox onClick={() => setDropdownAbierto(!dropdownAbierto)}>
+                    <div style={styles.dropdownTrigger}>
+                      <span>
+                        {form.posicion
+                          ? posiciones.find(p => p.valor === form.posicion)?.label
+                          : 'SELECCIONAR POSICION'}
+                      </span>
+                      <span>▼</span>
+                    </div>
+                  </PixelBox>
+                  {dropdownAbierto && (
+                    <div style={styles.dropdownMenu}>
+                      <div style={styles.dropdownHeader}>SELECCIONAR POSICION</div>
+                      {posiciones.map(p => (
+                        <div key={p.valor} style={styles.dropdownItem}
+                          onClick={() => {
+                            setForm({ ...form, posicion: p.valor })
+                            setDropdownAbierto(false)
+                          }}>
+                          <span style={styles.numero}>{p.numero}</span>
+                          {p.label}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div style={styles.botonesPaso}>
+                <PixelBox style={{ flex: 1 }} onClick={() => setPaso(1)}>
+                  <div style={styles.botonTexto}>&lt; ATRAS</div>
+                </PixelBox>
+                <PixelBox style={{ flex: 1, innerBackground: '#1a7a1a' }}
+                  onClick={() => {
+                    if (!form.nombre || !form.posicion) {
+                      setError('Completá todos los campos.')
+                      return
+                    }
+                    setError('')
+                    setPaso(3)
+                  }}>
+                  <div style={styles.botonTexto}>SIGUIENTE &gt;</div>
+                </PixelBox>
+              </div>
+            </div>
+          )}
+
+          {/* PASO 3 */}
+          {paso === 3 && (
+            <form onSubmit={handleSubmit} style={styles.form}>
+              <div style={styles.statsLayout}>
+                <div style={styles.sliders}>
+                  {Object.entries(form.stats).map(([key, val]) => (
+                    <div key={key} style={styles.statRow}>
+                      <label style={styles.statLabel}>{statsNombresCompletos[key]}</label>
+                      <input type="range" min="0" max="10" value={val}
+                        onChange={e => handleStat(key, e.target.value)}
+                        style={styles.slider} />
+                      <span style={styles.statValor}>{val}</span>
+                    </div>
+                  ))}
+                </div>
+                <div style={styles.radar}>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <RadarChart data={radarData}>
+                      <PolarGrid stroke="#2d6a2d" />
+                      <PolarAngleAxis dataKey="stat"
+                        tick={{ fill: '#4cff4c', fontSize: 9, fontWeight: 'bold' }} />
+                      <PolarRadiusAxis domain={[0, 10]} tick={false} axisLine={false} />
+                      <Radar dataKey="valor" stroke="#f0c040" fill="#f0c040" fillOpacity={0.4} />
+                      <Tooltip contentStyle={{
+                        background: '#000', border: '1px solid #4cff4c',
+                        color: '#4cff4c', fontSize: '11px'
+                      }} />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div style={styles.botonesPaso}>
+                <PixelBox style={{ flex: 1 }} onClick={() => setPaso(2)}>
+                  <div style={styles.botonTexto}>&lt; ATRAS</div>
+                </PixelBox>
+                <PixelBox style={{ flex: 1, innerBackground: '#1a7a1a' }}>
+                  <button type="submit" style={styles.botonSubmit} disabled={cargando}>
+                    {cargando ? 'CREANDO...' : 'CREAR CUENTA >'}
+                  </button>
+                </PixelBox>
+              </div>
+            </form>
+          )}
+
+          <p style={styles.linkTexto}>
+            ¿YA TENES CUENTA?{' '}
+            <Link to="/login" style={styles.link}>INICIA SESION</Link>
+          </p>
+        </div>
       </div>
     </div>
   )
@@ -189,57 +282,165 @@ function Registro() {
 
 const styles = {
   container: {
-    minHeight: '100vh', display: 'flex', alignItems: 'center',
+    minHeight: '100vh',
+    backgroundSize: 'cover',
+    backgroundRepeat: 'repeat',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
     justifyContent: 'center',
-    background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
     padding: '20px',
   },
-  card: {
-    background: 'white', borderRadius: '16px', padding: '40px',
-    width: '100%', maxWidth: '460px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+  logo: {
+    width: '360px',
+    maxWidth: '90%',
+    marginBottom: '20px',
+    filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.8))',
   },
-  titulo: { textAlign: 'center', fontSize: '26px', marginBottom: '6px', color: '#1a1a2e' },
-  subtitulo: {
-    textAlign: 'center', fontSize: '15px', color: '#666',
-    marginBottom: '24px', fontWeight: 'normal',
+  cardWrapper: {
+    background: '#fff',
+    clipPath: 'polygon(12px 0%, calc(100% - 12px) 0%, 100% 12px, 100% calc(100% - 12px), calc(100% - 12px) 100%, 12px 100%, 0% calc(100% - 12px), 0% 12px)',
+    width: '100%',
+    maxWidth: '720px',
+  },
+  cardInner: {
+    margin: '3px',
+    background: '#000',
+    clipPath: 'polygon(10px 0%, calc(100% - 10px) 0%, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0% calc(100% - 10px), 0% 10px)',
+    padding: '28px 36px',
   },
   pasos: {
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    marginBottom: '28px', gap: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
+    marginBottom: '24px',
+  },
+  pasoWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
   },
   paso: {
-    padding: '6px 14px', borderRadius: '20px', fontSize: '13px',
-    background: '#eee', color: '#888', fontWeight: '500',
+    padding: '8px 14px',
+    border: '2px solid #fff',
+    color: '#fff',
+    fontSize: '10px',
+    fontWeight: '700',
+    letterSpacing: '1px',
+    clipPath: 'polygon(4px 0%, calc(100% - 4px) 0%, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 0% calc(100% - 4px), 0% 4px)',
   },
-  pasoActivo: { background: '#0f3460', color: 'white' },
-  lineaPaso: { height: '2px', width: '24px', background: '#ddd' },
+  pasoActivo: {
+    background: '#1a7a1a',
+    border: '2px solid #4cff4c',
+    color: '#4cff4c',
+  },
+  flecha: { color: '#fff', fontSize: '16px' },
+  titulo: {
+    color: '#4cff4c',
+    fontSize: '16px',
+    letterSpacing: '2px',
+    marginBottom: '20px',
+  },
   form: { display: 'flex', flexDirection: 'column', gap: '14px' },
   campo: { display: 'flex', flexDirection: 'column', gap: '6px' },
-  label: { fontSize: '14px', fontWeight: '500', color: '#333' },
-  input: {
-    padding: '11px 14px', borderRadius: '8px',
-    border: '1.5px solid #ddd', fontSize: '15px', outline: 'none',
+  label: {
+    color: '#4cff4c', fontSize: '10px',
+    fontWeight: '700', letterSpacing: '1px',
   },
-  error: { color: '#e74c3c', fontSize: '13px', textAlign: 'center', marginBottom: '8px' },
-  ayuda: { fontSize: '13px', color: '#888', textAlign: 'center' },
-  statsGrid: { display: 'flex', flexDirection: 'column', gap: '10px' },
-  statRow: { display: 'flex', alignItems: 'center', gap: '10px' },
-  statLabel: { fontSize: '13px', fontWeight: '500', width: '70px', color: '#333' },
+  inputInner: {
+    background: 'transparent',
+    border: 'none',
+    color: '#fff',
+    fontSize: '11px',
+    outline: 'none',
+    width: '100%',
+    fontFamily: "'Press Start 2P', cursive",
+  },
+  dropdownTrigger: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    color: '#fff',
+    fontSize: '11px',
+    cursor: 'pointer',
+  },
+  dropdownMenu: {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+    background: '#000',
+    border: '2px solid #fff',
+    zIndex: 10,
+  },
+  dropdownHeader: {
+    padding: '10px 14px',
+    color: '#fff',
+    fontSize: '10px',
+    background: '#1a7a1a',
+    letterSpacing: '1px',
+  },
+  dropdownItem: {
+    padding: '10px 14px',
+    color: '#fff',
+    fontSize: '11px',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    borderTop: '1px solid #222',
+  },
+  numero: {
+    background: '#1a7a1a',
+    border: '2px solid #4cff4c',
+    width: '26px',
+    height: '26px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '12px',
+    fontWeight: '900',
+    color: '#fff',
+    fontFamily: "'Press Start 2P', cursive",
+  },
+  error: {
+    color: '#ff4c4c', fontSize: '10px',
+    marginBottom: '8px', fontWeight: '700',
+  },
+  botonTexto: {
+    color: '#fff', fontSize: '12px',
+    fontWeight: '900', letterSpacing: '2px',
+    textAlign: 'center', cursor: 'pointer',
+    fontFamily: "'Press Start 2P', cursive",
+  },
+  botonSubmit: {
+    background: 'transparent', border: 'none',
+    color: '#fff', fontSize: '12px',
+    fontWeight: '900', letterSpacing: '2px',
+    cursor: 'pointer', width: '100%',
+    fontFamily: "'Press Start 2P', cursive",
+  },
+  botonesPaso: { display: 'flex', gap: '12px', marginTop: '8px' },
+  statsLayout: { display: 'flex', gap: '20px', alignItems: 'flex-start' },
+  sliders: { flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' },
+  statRow: { display: 'flex', alignItems: 'center', gap: '8px' },
+  statLabel: {
+    color: '#4cff4c', fontSize: '8px',
+    fontWeight: '700', width: '68px',
+  },
   slider: { flex: 1 },
   statValor: {
-    fontSize: '14px', fontWeight: '700', color: '#0f3460',
-    width: '24px', textAlign: 'center',
+    color: '#f0c040', fontWeight: '900',
+    fontSize: '12px', width: '18px', textAlign: 'center',
   },
-  botonesPaso: { display: 'flex', gap: '10px', marginTop: '8px' },
-  boton: {
-    flex: 1, padding: '12px', background: '#0f3460', color: 'white',
-    border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: '600',
+  radar: { width: '260px', flexShrink: 0 },
+  linkTexto: {
+    textAlign: 'center', marginTop: '20px',
+    color: '#fff', fontSize: '10px',
+    fontWeight: '700', letterSpacing: '1px',
   },
-  botonSecundario: {
-    flex: 1, padding: '12px', background: 'transparent', color: '#0f3460',
-    border: '1.5px solid #0f3460', borderRadius: '8px', fontSize: '15px',
-  },
-  link: { textAlign: 'center', marginTop: '20px', fontSize: '14px', color: '#666' },
+  link: { color: '#f0c040', textDecoration: 'none' },
 }
 
 export default Registro
