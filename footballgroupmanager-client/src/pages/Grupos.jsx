@@ -16,7 +16,11 @@ const PixelBox = ({ children, style = {}, onClick }) => (
       margin: '2px',
       background: style.innerBackground || '#000',
       clipPath: 'polygon(5px 0%, calc(100% - 5px) 0%, 100% 5px, 100% calc(100% - 5px), calc(100% - 5px) 100%, 5px 100%, 0% calc(100% - 5px), 0% 5px)',
-      padding: style.padding || '12px 16px',
+      padding: style.padding || '10px 16px',
+      textAlign: 'center',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
     }}>
       {children}
     </div>
@@ -84,19 +88,23 @@ function Grupos() {
       <div style={styles.header}>
         <img src={logo} alt="Sale Fulbo" style={styles.logoHeader} />
         <div style={styles.headerDerecha}>
-          <span style={styles.bienvenida}>⚽ {usuario?.nombreUsuario?.toUpperCase()}</span>
+          <div style={styles.usuarioInfo}>
+            <span style={styles.nombreUsuario}>{usuario?.nombreUsuario?.toUpperCase()}</span>
+            <PixelBox style={{ innerBackground: '#1a7a1a' }} onClick={() => navigate('/perfil')}>
+              <span style={styles.botonTextoSm}>PERFIL</span>
+            </PixelBox>
+          </div>
           <PixelBox onClick={handleCerrarSesion}>
             <span style={styles.botonTextoSm}>SALIR</span>
           </PixelBox>
         </div>
       </div>
 
-      {/* Contenido */}
-      <div style={styles.contenido}>
+      {/* Area central con overlay */}
+      <div style={styles.areaContenido}>
+        <div style={styles.overlay}>
 
-        {/* Titulo y acciones */}
-        <div style={styles.topBar}>
-          <h2 style={styles.titulo}>MIS GRUPOS</h2>
+          {/* Botones crear y unirse */}
           <div style={styles.acciones}>
             <PixelBox style={{ innerBackground: '#1a7a1a' }} onClick={() => setModalCrear(true)}>
               <span style={styles.botonTexto}>+ CREAR</span>
@@ -105,56 +113,56 @@ function Grupos() {
               <span style={styles.botonTexto}>UNIRSE</span>
             </PixelBox>
           </div>
-        </div>
 
-        {error && <p style={styles.error}>{error}</p>}
+          {error && <p style={styles.error}>{error}</p>}
 
-        {cargando ? (
-          <p style={styles.mensaje}>CARGANDO...</p>
-        ) : grupos.length === 0 ? (
-          <div style={styles.vacio}>
-            <p style={styles.vacioPrin}>NO PERTENECES A NINGUN GRUPO</p>
-            <p style={styles.vacioSub}>CREA UNO O UNITE CON UN CODIGO</p>
-          </div>
-        ) : (
-          <div style={styles.grilla}>
-            {grupos.map(grupo => (
-              <div key={grupo.id}
-                onClick={() => navigate(`/grupos/${grupo.id}/partido`)}
-                style={styles.tarjetaWrapper}>
-                <div style={styles.tarjetaInner}>
-                  <h3 style={styles.nombreGrupo}>{grupo.nombre.toUpperCase()}</h3>
-                  <div style={styles.tarjetaDivider} />
-                  <p style={styles.tarjetaInfo}>
-                    <span style={styles.infoLabel}>CODIGO</span>
-                    <span style={styles.infoValor}>{grupo.codigo}</span>
-                  </p>
-                  <p style={styles.tarjetaInfo}>
-                    <span style={styles.infoLabel}>JUGADORES</span>
-                    <span style={styles.infoValor}>{grupo.miembros.length + 1}</span>
-                  </p>
-                  <p style={styles.tarjetaInfo}>
-                    <span style={styles.infoLabel}>CREADOR</span>
-                    <span style={{
-                      ...styles.infoValor,
-                      color: grupo.creador.nombreUsuario === usuario?.nombreUsuario
-                        ? '#f0c040' : '#fff'
-                    }}>
-                      {grupo.creador.nombreUsuario === usuario?.nombreUsuario
-                        ? '★ VOS' : grupo.creador.nombreUsuario.toUpperCase()}
-                    </span>
-                  </p>
-                  <div style={styles.entrarBtn}>ENTRAR &gt;</div>
+          {cargando ? (
+            <p style={styles.mensaje}>CARGANDO...</p>
+          ) : grupos.length === 0 ? (
+            <div style={styles.vacio}>
+              <p style={styles.vacioPrin}>NO PERTENECES A NINGUN GRUPO</p>
+              <p style={styles.vacioSub}>CREA UNO O UNITE CON UN CODIGO</p>
+            </div>
+          ) : (
+            <div style={styles.listaGrupos}>
+              {grupos.map(grupo => (
+                <div key={grupo.id}
+                  onClick={() => navigate(`/grupos/${grupo.id}/partido`)}
+                  style={styles.tarjetaWrapper}>
+                  <div style={styles.tarjetaInner}>
+                    <h3 style={styles.nombreGrupo}>{grupo.nombre.toUpperCase()}</h3>
+                    <div style={styles.tarjetaDivider} />
+                    <div style={styles.tarjetaInfoRow}>
+                      <span style={styles.infoLabel}>CODIGO</span>
+                      <span style={styles.infoValor}>{grupo.codigo}</span>
+                    </div>
+                    <div style={styles.tarjetaInfoRow}>
+                      <span style={styles.infoLabel}>JUGADORES</span>
+                      <span style={styles.infoValor}>{grupo.miembros.length + 1}</span>
+                    </div>
+                    <div style={styles.tarjetaInfoRow}>
+                      <span style={styles.infoLabel}>CREADOR</span>
+                      <span style={{
+                        ...styles.infoValor,
+                        color: grupo.creador.nombreUsuario === usuario?.nombreUsuario
+                          ? '#f0c040' : '#fff'
+                      }}>
+                        {grupo.creador.nombreUsuario === usuario?.nombreUsuario
+                          ? '★ VOS' : grupo.creador.nombreUsuario.toUpperCase()}
+                      </span>
+                    </div>
+                    <div style={styles.entrarBtn}>ENTRAR &gt;</div>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Modal Crear */}
       {modalCrear && (
-        <div style={styles.overlay}>
+        <div style={styles.modalOverlay}>
           <div style={styles.modalWrapper}>
             <div style={styles.modalInner}>
               <h3 style={styles.modalTitulo}>CREAR GRUPO</h3>
@@ -182,7 +190,7 @@ function Grupos() {
 
       {/* Modal Unirse */}
       {modalUnirse && (
-        <div style={styles.overlay}>
+        <div style={styles.modalOverlay}>
           <div style={styles.modalWrapper}>
             <div style={styles.modalInner}>
               <h3 style={styles.modalTitulo}>UNIRSE A GRUPO</h3>
@@ -221,77 +229,86 @@ const styles = {
     flexDirection: 'column',
   },
   header: {
-    background: 'rgba(0,0,0,0.85)',
+    background: 'rgba(0,0,0,0.9)',
     borderBottom: '3px solid #4cff4c',
-    padding: '12px 32px',
+    padding: '10px 24px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   logoHeader: {
-    height: '40px',
+    height: '36px',
     filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.8))',
   },
   headerDerecha: {
     display: 'flex',
     alignItems: 'center',
-    gap: '16px',
+    gap: '12px',
   },
-  bienvenida: {
-    color: '#4cff4c',
-    fontSize: '10px',
-    fontWeight: '700',
-    letterSpacing: '1px',
-  },
-  contenido: {
-    padding: '28px 32px',
-    maxWidth: '960px',
-    margin: '0 auto',
-    width: '100%',
-  },
-  topBar: {
+  usuarioInfo: {
     display: 'flex',
-    justifyContent: 'space-between',
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: '24px',
+    gap: '10px',
   },
-  titulo: {
-    color: '#4cff4c',
-    fontSize: '16px',
-    letterSpacing: '2px',
+  nombreUsuario: {
+      color: '#f0c040',
+      fontSize: '9px',
+      letterSpacing: '1px',
+  },
+  areaContenido: {
+    flex: 1,
+    display: 'flex',
+    justifyContent: 'center',
+  },
+  overlay: {
+    background: 'rgba(184, 118, 17, 0.55)',
+    width: '100%',
+    maxWidth: '500px',
+    padding: '24px 20px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '16px',
+    minHeight: '100%',
   },
   acciones: {
     display: 'flex',
     gap: '12px',
+    marginBottom: '8px',
+    alignSelf: 'flex-end',
   },
-  grilla: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-    gap: '20px',
+  listaGrupos: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+    width: '100%',
   },
   tarjetaWrapper: {
     background: '#fff',
     clipPath: 'polygon(10px 0%, calc(100% - 10px) 0%, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0% calc(100% - 10px), 0% 10px)',
     cursor: 'pointer',
+    width: '100%',
   },
   tarjetaInner: {
     margin: '2px',
     background: '#000',
     clipPath: 'polygon(9px 0%, calc(100% - 9px) 0%, 100% 9px, 100% calc(100% - 9px), calc(100% - 9px) 100%, 9px 100%, 0% calc(100% - 9px), 0% 9px)',
-    padding: '20px',
+    padding: '18px 20px',
   },
   nombreGrupo: {
     color: '#f0c040',
-    fontSize: '13px',
+    fontSize: '12px',
     letterSpacing: '1px',
     marginBottom: '12px',
+    lineHeight: '1.6',
   },
   tarjetaDivider: {
     height: '2px',
     background: '#1a7a1a',
     marginBottom: '12px',
   },
-  tarjetaInfo: {
+  tarjetaInfoRow: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -317,32 +334,35 @@ const styles = {
   },
   vacio: {
     textAlign: 'center',
-    padding: '60px 20px',
+    padding: '40px 20px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
   },
   vacioPrin: {
     color: '#4cff4c',
-    fontSize: '12px',
-    marginBottom: '12px',
+    fontSize: '11px',
     letterSpacing: '1px',
+    lineHeight: '1.8',
   },
   vacioSub: {
-    color: '#888',
-    fontSize: '10px',
+    color: '#ffffff',
+    fontSize: '9px',
     letterSpacing: '1px',
   },
   mensaje: {
     color: '#4cff4c',
-    textAlign: 'center',
-    fontSize: '12px',
+    fontSize: '11px',
     padding: '40px',
+    letterSpacing: '1px',
   },
   error: {
     color: '#ff4c4c',
     fontSize: '10px',
-    marginBottom: '16px',
     textAlign: 'center',
+    lineHeight: '1.6',
   },
-  overlay: {
+  modalOverlay: {
     position: 'fixed',
     inset: 0,
     background: 'rgba(0,0,0,0.85)',
@@ -365,39 +385,53 @@ const styles = {
   },
   modalTitulo: {
     color: '#4cff4c',
-    fontSize: '14px',
+    fontSize: '13px',
     letterSpacing: '2px',
     marginBottom: '20px',
   },
   form: { display: 'flex', flexDirection: 'column', gap: '12px' },
   label: {
-    color: '#4cff4c', fontSize: '10px',
-    fontWeight: '700', letterSpacing: '1px',
+    color: '#4cff4c',
+    fontSize: '9px',
+    fontWeight: '700',
+    letterSpacing: '1px',
   },
   inputInner: {
-    background: 'transparent', border: 'none',
-    color: '#fff', fontSize: '11px',
-    outline: 'none', width: '100%',
+    background: 'transparent',
+    border: 'none',
+    color: '#fff',
+    fontSize: '11px',
+    outline: 'none',
+    width: '100%',
     fontFamily: "'Press Start 2P', cursive",
   },
   modalBotones: { display: 'flex', gap: '10px', marginTop: '8px' },
   botonTexto: {
-    color: '#fff', fontSize: '11px',
-    fontWeight: '900', letterSpacing: '1px',
-    textAlign: 'center', cursor: 'pointer',
+    color: '#fff',
+    fontSize: '11px',
+    fontWeight: '900',
+    letterSpacing: '1px',
+    textAlign: 'center',
+    cursor: 'pointer',
     fontFamily: "'Press Start 2P', cursive",
   },
   botonTextoSm: {
-    color: '#fff', fontSize: '10px',
-    fontWeight: '900', letterSpacing: '1px',
+    color: '#fff',
+    fontSize: '9px',
+    fontWeight: '900',
+    letterSpacing: '1px',
     cursor: 'pointer',
     fontFamily: "'Press Start 2P', cursive",
   },
   botonSubmit: {
-    background: 'transparent', border: 'none',
-    color: '#fff', fontSize: '11px',
-    fontWeight: '900', letterSpacing: '1px',
-    cursor: 'pointer', width: '100%',
+    background: 'transparent',
+    border: 'none',
+    color: '#fff',
+    fontSize: '11px',
+    fontWeight: '900',
+    letterSpacing: '1px',
+    cursor: 'pointer',
+    width: '100%',
     textAlign: 'center',
     fontFamily: "'Press Start 2P', cursive",
   },

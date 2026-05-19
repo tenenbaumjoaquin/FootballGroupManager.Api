@@ -177,32 +177,18 @@ function Registro() {
 
               <div style={styles.campo}>
                 <label style={styles.label}>POSICION</label>
-                <div style={{ position: 'relative' }}>
-                  <PixelBox onClick={() => setDropdownAbierto(!dropdownAbierto)}>
-                    <div style={styles.dropdownTrigger}>
-                      <span>
-                        {form.posicion
-                          ? posiciones.find(p => p.valor === form.posicion)?.label
-                          : 'SELECCIONAR POSICION'}
-                      </span>
-                      <span>▼</span>
+                <div style={styles.posicionesGrid}>
+                  {posiciones.map(p => (
+                    <div key={p.valor}
+                      onClick={() => setForm({ ...form, posicion: p.valor })}
+                      style={{
+                        ...styles.posicionBtn,
+                        ...(form.posicion === p.valor ? styles.posicionBtnActivo : {})
+                      }}>
+                      <span style={styles.posicionNumero}>{p.numero}</span>
+                      <span style={styles.posicionLabel}>{p.label}</span>
                     </div>
-                  </PixelBox>
-                  {dropdownAbierto && (
-                    <div style={styles.dropdownMenu}>
-                      <div style={styles.dropdownHeader}>SELECCIONAR POSICION</div>
-                      {posiciones.map(p => (
-                        <div key={p.valor} style={styles.dropdownItem}
-                          onClick={() => {
-                            setForm({ ...form, posicion: p.valor })
-                            setDropdownAbierto(false)
-                          }}>
-                          <span style={styles.numero}>{p.numero}</span>
-                          {p.label}
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  ))}
                 </div>
               </div>
 
@@ -302,12 +288,14 @@ const styles = {
     clipPath: 'polygon(12px 0%, calc(100% - 12px) 0%, 100% 12px, 100% calc(100% - 12px), calc(100% - 12px) 100%, 12px 100%, 0% calc(100% - 12px), 0% 12px)',
     width: '100%',
     maxWidth: '720px',
+    overflow: 'visible',
   },
   cardInner: {
     margin: '3px',
     background: '#000',
     clipPath: 'polygon(10px 0%, calc(100% - 10px) 0%, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0% calc(100% - 10px), 0% 10px)',
     padding: '28px 36px',
+    overflow: 'visible',
   },
   pasos: {
     display: 'flex',
@@ -441,6 +429,40 @@ const styles = {
     fontWeight: '700', letterSpacing: '1px',
   },
   link: { color: '#f0c040', textDecoration: 'none' },
+  posicionesGrid: {
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+  gap: '10px',
+},
+posicionBtn: {
+  background: '#111',
+  border: '2px solid #444',
+  clipPath: 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0% calc(100% - 6px), 0% 6px)',
+  padding: '12px',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '10px',
+  cursor: 'pointer',
+},
+posicionBtnActivo: {
+  background: '#1a7a1a',
+  border: '2px solid #4cff4c',
+},
+posicionNumero: {
+  color: '#f0c040',
+  fontSize: '14px',
+  fontWeight: '900',
+  fontFamily: "'Press Start 2P', cursive",
+  width: '24px',
+  textAlign: 'center',
+},
+posicionLabel: {
+  color: '#fff',
+  fontSize: '9px',
+  fontWeight: '700',
+  letterSpacing: '1px',
+  fontFamily: "'Press Start 2P', cursive",
+},
 }
 
 export default Registro
