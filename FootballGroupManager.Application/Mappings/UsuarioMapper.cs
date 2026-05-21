@@ -17,6 +17,23 @@ namespace FootballGroupManager.Application.Mappings
                 Posicion = usuario.Posicion,
                 Calificacion = usuario.Calificacion,
                 PuntajeTotal = usuario.PuntajeTotal,
+                Avatar = usuario.Avatar is null ? null : new AvatarConfigDto
+                {
+                    Cabeza = usuario.Avatar.Cabeza,
+                    Pelo = usuario.Avatar.Pelo,
+                    ColorPelo = usuario.Avatar.ColorPelo,
+                    Ojos = usuario.Avatar.Ojos,
+                    ColorOjos = usuario.Avatar.ColorOjos,
+                    Cara = usuario.Avatar.Cara,
+                    ColorPiel = usuario.Avatar.ColorPiel,
+                    Vello = usuario.Avatar.Vello,
+                    ColorVello = usuario.Avatar.ColorVello,
+                    Accesorio = usuario.Avatar.Accesorio,
+                    Camiseta = usuario.Avatar.Camiseta,
+                    ColorCamisetaPrincipal = usuario.Avatar.ColorCamisetaPrincipal,
+                    ColorCamisetaSecundario = usuario.Avatar.ColorCamisetaSecundario,
+                    Fondo = usuario.Avatar.Fondo,
+                },
                 Stats = usuario.Stats is null
                     ? new List<StatDto>()
                     : new List<StatDto>

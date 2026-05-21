@@ -115,10 +115,22 @@ function Registro() {
             {['1. CUENTA', '2. JUGADOR', '3. STATS'].map((label, i) => (
               <div key={i} style={styles.pasoWrapper}>
                 <div style={{
-                  ...styles.paso,
-                  ...(paso === i + 1 ? styles.pasoActivo : {})
+                  background: paso === i + 1 ? '#4cff4c' : '#fff',
+                  clipPath: 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0% calc(100% - 6px), 0% 6px)',
                 }}>
-                  {label}
+                  <div style={{
+                    margin: '2px',
+                    background: paso === i + 1 ? '#1a7a1a' : '#000',
+                    clipPath: 'polygon(5px 0%, calc(100% - 5px) 0%, 100% 5px, 100% calc(100% - 5px), calc(100% - 5px) 100%, 5px 100%, 0% calc(100% - 5px), 0% 5px)',
+                    padding: '6px 12px',
+                    color: paso === i + 1 ? '#4cff4c' : '#fff',
+                    fontSize: '10px',
+                    fontWeight: '700',
+                    letterSpacing: '1px',
+                    fontFamily: "'Press Start 2P', cursive",
+                  }}>
+                    {label}
+                  </div>
                 </div>
                 {i < 2 && <span style={styles.flecha}>➔</span>}
               </div>
@@ -310,18 +322,20 @@ const styles = {
     gap: '8px',
   },
   paso: {
-    padding: '8px 14px',
-    border: '2px solid #fff',
-    color: '#fff',
-    fontSize: '10px',
-    fontWeight: '700',
-    letterSpacing: '1px',
-    clipPath: 'polygon(4px 0%, calc(100% - 4px) 0%, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 0% calc(100% - 4px), 0% 4px)',
+  padding: '8px 14px',
+  border: '2px solid #fff',
+  color: '#fff',
+  fontSize: '10px',
+  fontWeight: '700',
+  letterSpacing: '1px',
+  clipPath: 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0% calc(100% - 6px), 0% 6px)',
+  background: '#000',
   },
   pasoActivo: {
     background: '#1a7a1a',
     border: '2px solid #4cff4c',
     color: '#4cff4c',
+    clipPath: 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0% calc(100% - 6px), 0% 6px)',
   },
   flecha: { color: '#fff', fontSize: '16px' },
   titulo: {

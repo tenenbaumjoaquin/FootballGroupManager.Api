@@ -3,6 +3,7 @@ using FootballGroupManager.Application.Interfaces;
 using FootballGroupManager.Application.Mappings;
 using FootballGroupManager.Domain.DomainExceptions;
 using FootballGroupManager.Domain.Entities;
+using FootballGroupManager.Domain.ValueObjects;
 
 namespace FootballGroupManager.Application.Services.Usuarios
 {
@@ -46,13 +47,30 @@ namespace FootballGroupManager.Application.Services.Usuarios
             var estadisticas = UsuarioMapper.ToEstadisticas(dto.Stats);
 
             // Crear el usuario
-            var usuario = new Usuario(
+            var usuario = new Domain.Entities.Usuario(
                 dto.NombreUsuario,
                 dto.Email,
                 passwordHash,
                 dto.Nombre,
                 dto.Posicion,
-                estadisticas
+                estadisticas,
+                dto.Avatar != null ? new AvatarConfig
+                {
+                    Cabeza = dto.Avatar.Cabeza,
+                    Pelo = dto.Avatar.Pelo,
+                    ColorPelo = dto.Avatar.ColorPelo,
+                    Ojos = dto.Avatar.Ojos,
+                    ColorOjos = dto.Avatar.ColorOjos,
+                    Cara = dto.Avatar.Cara,
+                    ColorPiel = dto.Avatar.ColorPiel,
+                    Vello = dto.Avatar.Vello,
+                    ColorVello = dto.Avatar.ColorVello,
+                    Accesorio = dto.Avatar.Accesorio,
+                    Camiseta = dto.Avatar.Camiseta,
+                    ColorCamisetaPrincipal = dto.Avatar.ColorCamisetaPrincipal,
+                    ColorCamisetaSecundario = dto.Avatar.ColorCamisetaSecundario,
+                    Fondo = dto.Avatar.Fondo,
+                } : new AvatarConfig()
             );
 
             await _repositorio.AgregarAsync(usuario);

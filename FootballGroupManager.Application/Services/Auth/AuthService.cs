@@ -1,13 +1,14 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using FootballGroupManager.Application.DTOs.Auth;
+﻿using FootballGroupManager.Application.DTOs.Auth;
 using FootballGroupManager.Application.DTOs.Usuario;
 using FootballGroupManager.Application.Interfaces;
 using FootballGroupManager.Application.Mappings;
 using FootballGroupManager.Domain.DomainExceptions;
+using FootballGroupManager.Domain.ValueObjects;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace FootballGroupManager.Application.Services.Auth
 {
@@ -52,7 +53,24 @@ namespace FootballGroupManager.Application.Services.Auth
                 passwordHash,
                 dto.Nombre,
                 dto.Posicion,
-                estadisticas
+                estadisticas,
+                dto.Avatar != null ? new AvatarConfig
+                {
+                    Cabeza = dto.Avatar.Cabeza,
+                    Pelo = dto.Avatar.Pelo,
+                    ColorPelo = dto.Avatar.ColorPelo,
+                    Ojos = dto.Avatar.Ojos,
+                    ColorOjos = dto.Avatar.ColorOjos,
+                    Cara = dto.Avatar.Cara,
+                    ColorPiel = dto.Avatar.ColorPiel,
+                    Vello = dto.Avatar.Vello,
+                    ColorVello = dto.Avatar.ColorVello,
+                    Accesorio = dto.Avatar.Accesorio,
+                    Camiseta = dto.Avatar.Camiseta,
+                    ColorCamisetaPrincipal = dto.Avatar.ColorCamisetaPrincipal,
+                    ColorCamisetaSecundario = dto.Avatar.ColorCamisetaSecundario,
+                    Fondo = dto.Avatar.Fondo,
+                } : new AvatarConfig()
             );
 
             await _usuarioRepositorio.AgregarAsync(usuario);

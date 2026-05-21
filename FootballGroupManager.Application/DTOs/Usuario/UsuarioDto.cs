@@ -10,6 +10,7 @@ namespace FootballGroupManager.Application.DTOs.Usuario
         public string Posicion { get; set; } = string.Empty;
         public string Calificacion { get; set; } = string.Empty;
         public double PuntajeTotal { get; set; }
+        public AvatarConfigDto? Avatar { get; set; }
         public List<StatDto> Stats { get; set; } = new();
     }
 }

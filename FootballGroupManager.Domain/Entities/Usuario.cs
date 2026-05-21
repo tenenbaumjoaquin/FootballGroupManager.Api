@@ -17,6 +17,7 @@ namespace FootballGroupManager.Domain.Entities
         public string Calificacion { get; private set; } = "F";
         public double PuntajeTotal { get; private set; } = 0;
         public EstadisticasJugador? Stats { get; private set; }
+        public AvatarConfig Avatar { get; private set; } = new();
 
         // Grupos que creó (máximo 4)
         private readonly List<Grupo> _gruposCreados = new();
@@ -39,7 +40,7 @@ namespace FootballGroupManager.Domain.Entities
         }
 
         public Usuario(string nombreUsuario, string email, string passwordHash,
-                       string nombre, string posicion, EstadisticasJugador stats)
+                       string nombre, string posicion, EstadisticasJugador stats, AvatarConfig avatar)
         {
             if (string.IsNullOrWhiteSpace(nombreUsuario))
                 throw new DomainException("El nombre de usuario no puede estar vacío.");
@@ -56,6 +57,8 @@ namespace FootballGroupManager.Domain.Entities
             if (!PositicionesValidas.Contains(posicion))
                 throw new DomainException($"Posición inválida: '{posicion}'. Valores válidos: ARQ, DEF, VOL, DEL.");
 
+            if (avatar is null)
+                throw new DomainException("El avatar es obligatorio.");
             if (stats is null)
                 throw new DomainException("Las estadísticas son obligatorias.");
 
@@ -65,6 +68,7 @@ namespace FootballGroupManager.Domain.Entities
             Nombre = nombre;
             Posicion = posicion;
             Stats = stats;
+            Avatar = avatar;
             CalcularCalificacion();
         }
 
@@ -83,6 +87,12 @@ namespace FootballGroupManager.Domain.Entities
             Posicion = posicion;
             Stats = stats;
             CalcularCalificacion();
+        }
+        public void ActualizarAvatar(AvatarConfig avatar)
+        {
+            if (avatar is null)
+                throw new DomainException("La configuración del avatar no puede ser nula.");
+            Avatar = avatar;
         }
 
         public void AsignarId(int id)
