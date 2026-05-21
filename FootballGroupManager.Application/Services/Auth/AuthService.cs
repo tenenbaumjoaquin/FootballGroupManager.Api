@@ -54,23 +54,24 @@ namespace FootballGroupManager.Application.Services.Auth
                 dto.Nombre,
                 dto.Posicion,
                 estadisticas,
-                dto.Avatar != null ? new AvatarConfig
-                {
-                    Cabeza = dto.Avatar.Cabeza,
-                    Pelo = dto.Avatar.Pelo,
-                    ColorPelo = dto.Avatar.ColorPelo,
-                    Ojos = dto.Avatar.Ojos,
-                    ColorOjos = dto.Avatar.ColorOjos,
-                    Cara = dto.Avatar.Cara,
-                    ColorPiel = dto.Avatar.ColorPiel,
-                    Vello = dto.Avatar.Vello,
-                    ColorVello = dto.Avatar.ColorVello,
-                    Accesorio = dto.Avatar.Accesorio,
-                    Camiseta = dto.Avatar.Camiseta,
-                    ColorCamisetaPrincipal = dto.Avatar.ColorCamisetaPrincipal,
-                    ColorCamisetaSecundario = dto.Avatar.ColorCamisetaSecundario,
-                    Fondo = dto.Avatar.Fondo,
-                } : new AvatarConfig()
+            dto.Avatar != null ? new AvatarConfig
+            {
+                Cara = dto.Avatar.Cara,
+                ColorPiel = dto.Avatar.ColorPiel,
+                Boca = dto.Avatar.Boca,
+                Nariz = dto.Avatar.Nariz,
+                Ojos = dto.Avatar.Ojos,
+                ColorOjos = dto.Avatar.ColorOjos,
+                Pelo = dto.Avatar.Pelo,
+                ColorPelo = dto.Avatar.ColorPelo,
+                Barba = dto.Avatar.Barba,
+                ColorBarba = dto.Avatar.ColorBarba,
+                Accesorio = dto.Avatar.Accesorio,
+                Camiseta = dto.Avatar.Camiseta,
+                ColorCamisetaPrincipal = dto.Avatar.ColorCamisetaPrincipal,
+                ColorCamisetaSecundario = dto.Avatar.ColorCamisetaSecundario,
+                Fondo = dto.Avatar.Fondo,
+            } : new AvatarConfig()
             );
 
             await _usuarioRepositorio.AgregarAsync(usuario);

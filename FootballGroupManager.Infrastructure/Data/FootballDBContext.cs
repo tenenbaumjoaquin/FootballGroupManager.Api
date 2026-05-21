@@ -69,15 +69,16 @@ namespace FootballGroupManager.Infrastructure.Data
                 });
                 entity.OwnsOne(u => u.Avatar, avatar =>
                 {
-                    avatar.Property(a => a.Cabeza).HasColumnName("Avatar_Cabeza").HasMaxLength(50);
-                    avatar.Property(a => a.Pelo).HasColumnName("Avatar_Pelo").HasMaxLength(50);
-                    avatar.Property(a => a.ColorPelo).HasColumnName("Avatar_ColorPelo").HasMaxLength(10);
-                    avatar.Property(a => a.Ojos).HasColumnName("Avatar_Ojos").HasMaxLength(50);
-                    avatar.Property(a => a.ColorOjos).HasColumnName("Avatar_ColorOjos").HasMaxLength(10);
                     avatar.Property(a => a.Cara).HasColumnName("Avatar_Cara").HasMaxLength(50);
                     avatar.Property(a => a.ColorPiel).HasColumnName("Avatar_ColorPiel").HasMaxLength(10);
-                    avatar.Property(a => a.Vello).HasColumnName("Avatar_Vello").HasMaxLength(50);
-                    avatar.Property(a => a.ColorVello).HasColumnName("Avatar_ColorVello").HasMaxLength(10);
+                    avatar.Property(a => a.Boca).HasColumnName("Avatar_Boca").HasMaxLength(50);
+                    avatar.Property(a => a.Nariz).HasColumnName("Avatar_Nariz").HasMaxLength(50);
+                    avatar.Property(a => a.Ojos).HasColumnName("Avatar_Ojos").HasMaxLength(50);
+                    avatar.Property(a => a.ColorOjos).HasColumnName("Avatar_ColorOjos").HasMaxLength(10);
+                    avatar.Property(a => a.Pelo).HasColumnName("Avatar_Pelo").HasMaxLength(50);
+                    avatar.Property(a => a.ColorPelo).HasColumnName("Avatar_ColorPelo").HasMaxLength(10);
+                    avatar.Property(a => a.Barba).HasColumnName("Avatar_Barba").HasMaxLength(50);
+                    avatar.Property(a => a.ColorBarba).HasColumnName("Avatar_ColorBarba").HasMaxLength(10);
                     avatar.Property(a => a.Accesorio).HasColumnName("Avatar_Accesorio").HasMaxLength(50);
                     avatar.Property(a => a.Camiseta).HasColumnName("Avatar_Camiseta").HasMaxLength(50);
                     avatar.Property(a => a.ColorCamisetaPrincipal).HasColumnName("Avatar_ColorCamisetaPrincipal").HasMaxLength(10);
