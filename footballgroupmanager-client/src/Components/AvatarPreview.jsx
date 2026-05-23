@@ -17,11 +17,13 @@ const FONDOS = {
 
 function AvatarPreview({ config, size = 200 }) {
   const fondo = FONDOS[config?.fondo] || FONDOS.gradiente_01
+  const width = size * (54 / 80)
+  const height = size
 
   return (
     <div style={{
-      width: size,
-      height: size,
+      width: width,
+      height: height,
       background: fondo,
       position: 'relative',
       overflow: 'hidden',

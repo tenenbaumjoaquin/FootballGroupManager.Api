@@ -384,38 +384,6 @@ function Registro() {
                   ))}
                 </div>
 
-                {/* Color camiseta */}
-                {categoriaActiva === 'camiseta' && (
-                  <>
-                    <p style={styles.avatarSeccionLabel}>COLOR PRINCIPAL</p>
-                    <div style={styles.coloresGrid}>
-                      {['#CC0000','#0000CC','#1a7a1a','#f0c040','#fff','#000','#FF6600','#9B59B6'].map(c => (
-                        <div key={c}
-                          onClick={() => handleAvatar('colorCamisetaPrincipal', c)}
-                          style={{
-                            ...styles.colorCirculo,
-                            background: c,
-                            border: form.avatar.colorCamisetaPrincipal === c
-                              ? '3px solid #4cff4c' : '2px solid #444',
-                          }} />
-                      ))}
-                    </div>
-                    <p style={styles.avatarSeccionLabel}>COLOR SECUNDARIO</p>
-                    <div style={styles.coloresGrid}>
-                      {['#FFFFFF','#CC0000','#0000CC','#1a7a1a','#f0c040','#000','#FF6600','#9B59B6'].map(c => (
-                        <div key={c}
-                          onClick={() => handleAvatar('colorCamisetaSecundario', c)}
-                          style={{
-                            ...styles.colorCirculo,
-                            background: c,
-                            border: form.avatar.colorCamisetaSecundario === c
-                              ? '3px solid #4cff4c' : '2px solid #444',
-                          }} />
-                      ))}
-                    </div>
-                  </>
-                )}
-
                 <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
                   <PixelBox style={{ flex: 1 }} onClick={handleAleatorio}>
                     <span style={styles.botonTextoXs}>🎲 ALEATORIO</span>
@@ -463,6 +431,38 @@ function Registro() {
                             ...styles.colorCirculo,
                             background: c,
                             border: form.avatar[colorKeyActual] === c
+                              ? '3px solid #4cff4c' : '2px solid #444',
+                          }} />
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {/* Colores camiseta en columna derecha */}
+                {categoriaActiva === 'camiseta' && (
+                  <>
+                    <p style={{ ...styles.avatarSeccionLabel, marginTop: '12px' }}>COLOR PRINCIPAL</p>
+                    <div style={styles.coloresGrid}>
+                      {['#CC0000','#0000CC','#1a7a1a','#f0c040','#fff','#000','#FF6600','#9B59B6'].map(c => (
+                        <div key={c}
+                          onClick={() => handleAvatar('colorCamisetaPrincipal', c)}
+                          style={{
+                            ...styles.colorCirculo,
+                            background: c,
+                            border: form.avatar.colorCamisetaPrincipal === c
+                              ? '3px solid #4cff4c' : '2px solid #444',
+                          }} />
+                      ))}
+                    </div>
+                    <p style={{ ...styles.avatarSeccionLabel, marginTop: '8px' }}>COLOR SECUNDARIO</p>
+                    <div style={styles.coloresGrid}>
+                      {['#FFFFFF','#CC0000','#0000CC','#1a7a1a','#f0c040','#000','#FF6600','#9B59B6'].map(c => (
+                        <div key={c}
+                          onClick={() => handleAvatar('colorCamisetaSecundario', c)}
+                          style={{
+                            ...styles.colorCirculo,
+                            background: c,
+                            border: form.avatar.colorCamisetaSecundario === c
                               ? '3px solid #4cff4c' : '2px solid #444',
                           }} />
                       ))}
