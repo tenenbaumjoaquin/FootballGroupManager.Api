@@ -1,0 +1,38 @@
+function Barba01({ colorBarba = '#4c2b23' }) {
+  return (
+    <svg id="Barba" xmlns="http://www.w3.org/2000/svg" width="54" height="80" viewBox="0 0 54 80"
+      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
+      <g id="ColorPelo" fill={colorBarba}>
+        <rect x="14" y="33" width="1" height="4"/><rect x="15" y="34" width="1" height="12"/>
+        <rect x="16" y="38" width="1" height="9"/><rect x="17" y="42" width="1" height="6"/>
+        <rect x="18" y="44" width="1" height="6"/><rect x="19" y="47" width="3" height="4"/>
+        <rect x="22" y="50" width="1" height="4"/><rect x="20" y="51" width="2" height="1"/>
+        <rect x="21" y="52" width="1" height="1"/><rect x="23" y="51" width="1" height="4"/>
+        <rect x="24" y="52" width="1" height="4"/><rect x="29" y="52" width="1" height="4"/>
+        <rect x="30" y="51" width="1" height="4"/><rect x="31" y="50" width="1" height="4"/>
+        <rect x="32" y="46" width="1" height="7"/><rect x="33" y="47" width="1" height="5"/>
+        <rect x="34" y="47" width="1" height="4"/><rect x="35" y="44" width="1" height="6"/>
+        <rect x="36" y="42" width="1" height="6"/><rect x="37" y="38" width="1" height="9"/>
+        <rect x="38" y="34" width="1" height="12"/><rect x="39" y="33" width="1" height="4"/>
+        <rect x="21" y="46" width="3" height="1"/><rect x="22" y="45" width="10" height="1"/>
+        <rect x="30" y="46" width="2" height="1"/><rect x="23" y="44" width="8" height="1"/>
+        <rect x="25" y="50" width="4" height="6"/>
+      </g>
+      <g id="contorno" fill="#000">
+        <rect x="14" y="37" width="1" height="9"/><rect x="39" y="37" width="1" height="9"/>
+        <rect x="38" y="46" width="1" height="1"/><rect x="37" y="47" width="1" height="1"/>
+        <rect x="36" y="48" width="1" height="2"/><rect x="35" y="50" width="1" height="1"/>
+        <rect x="34" y="51" width="1" height="1"/><rect x="33" y="52" width="1" height="1"/>
+        <rect x="32" y="53" width="1" height="1"/><rect x="31" y="54" width="1" height="1"/>
+        <rect x="30" y="55" width="1" height="1"/><rect x="24" y="56" width="6" height="1"/>
+        <rect x="15" y="46" width="1" height="1"/><rect x="16" y="47" width="1" height="1"/>
+        <rect x="17" y="48" width="1" height="2"/><rect x="18" y="50" width="1" height="1"/>
+        <rect x="19" y="51" width="1" height="1"/><rect x="20" y="52" width="1" height="1"/>
+        <rect x="21" y="53" width="1" height="1"/><rect x="22" y="54" width="1" height="1"/>
+        <rect x="23" y="55" width="1" height="1"/>
+      </g>
+    </svg>
+  )
+}
+
+export default Barba01

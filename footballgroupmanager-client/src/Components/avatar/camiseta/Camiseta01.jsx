@@ -1,0 +1,26 @@
+function Camiseta01({ colorPrincipal = '#0b62cd', colorSecundario = '#e7e404' }) {
+  return (
+    <svg id="Camiseta" xmlns="http://www.w3.org/2000/svg" width="54" height="80" viewBox="0 0 54 80"
+      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
+      <g id="color2" fill={colorSecundario}>
+        <rect y="71" width="54" height="9"/>
+      </g>
+      <g id="color1" fill={colorPrincipal}>
+        <rect y="55" width="53" height="16"/><rect x="53" y="55" width="1" height="16"/>
+        <rect x="3" y="54" width="48" height="1"/><rect x="5" y="53" width="44" height="1"/>
+        <rect x="7" y="52" width="40" height="1"/><rect x="9" y="51" width="36" height="1"/>
+        <rect x="13" y="50" width="28" height="1"/>
+      </g>
+      <g id="contorno" fill="#000">
+        <rect x="51" y="54" width="3" height="1"/><rect x="49" y="53" width="2" height="1"/>
+        <rect x="47" y="52" width="2" height="1"/><rect x="45" y="51" width="2" height="1"/>
+        <rect x="41" y="50" width="4" height="1"/><rect x="38" y="49" width="3" height="1"/>
+        <rect x="13" y="49" width="3" height="1"/><rect x="9" y="50" width="4" height="1"/>
+        <rect x="7" y="51" width="2" height="1"/><rect x="5" y="52" width="2" height="1"/>
+        <rect x="3" y="53" width="2" height="1"/><rect y="54" width="3" height="1"/>
+      </g>
+    </svg>
+  )
+}
+
+export default Camiseta01

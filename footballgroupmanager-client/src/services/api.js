@@ -39,6 +39,7 @@ export const authService = {
 export const usuarioService = {
   miPerfil: () => api.get('/usuarios/me'),
   actualizar: (data) => api.put('/usuarios/me', data),
+  eliminar: () => api.delete('/usuarios/me'),
 }
 
 export const grupoService = {
@@ -59,5 +60,6 @@ export const partidoService = {
   generarEquipos: (partidoId) => api.post(`/partidos/${partidoId}/equipos`),
   marcarJugado: (partidoId) => api.post(`/partidos/${partidoId}/jugado`),
 }
+
 
 export default api
