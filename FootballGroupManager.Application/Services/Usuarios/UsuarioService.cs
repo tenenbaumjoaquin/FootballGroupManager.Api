@@ -86,6 +86,28 @@ namespace FootballGroupManager.Application.Services.Usuarios
             var estadisticas = UsuarioMapper.ToEstadisticas(dto.Stats);
             usuario.ActualizarPerfil(dto.Nombre, dto.Posicion, estadisticas);
 
+            if (dto.Avatar is not null)
+            {
+                usuario.ActualizarAvatar(new AvatarConfig
+                {
+                    Cara = dto.Avatar.Cara,
+                    ColorPiel = dto.Avatar.ColorPiel,
+                    Boca = dto.Avatar.Boca,
+                    Nariz = dto.Avatar.Nariz,
+                    Ojos = dto.Avatar.Ojos,
+                    ColorOjos = dto.Avatar.ColorOjos,
+                    Pelo = dto.Avatar.Pelo,
+                    ColorPelo = dto.Avatar.ColorPelo,
+                    Barba = dto.Avatar.Barba,
+                    ColorBarba = dto.Avatar.ColorBarba,
+                    Accesorio = dto.Avatar.Accesorio,
+                    Camiseta = dto.Avatar.Camiseta,
+                    ColorCamisetaPrincipal = dto.Avatar.ColorCamisetaPrincipal,
+                    ColorCamisetaSecundario = dto.Avatar.ColorCamisetaSecundario,
+                    Fondo = dto.Avatar.Fondo,
+                });
+            }
+
             await _repositorio.ActualizarAsync(usuario);
             return UsuarioMapper.ToDto(usuario);
         }
