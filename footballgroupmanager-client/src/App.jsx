@@ -4,6 +4,7 @@ import Registro from './pages/Registro'
 import Grupos from './pages/Grupos'
 import Partido from './pages/Partido'
 import Perfil from './pages/Perfil'
+import EditarPerfil from './pages/EditarPerfil'
 
 function App() {
   const token = localStorage.getItem('token')
@@ -17,6 +18,7 @@ function App() {
         <Route path="/grupos" element={<Grupos />} />
         <Route path="/grupos/:grupoId/partido" element={<Partido />} />
          <Route path="/perfil" element={<Perfil />} />
+         <Route path="/perfil/editar" element={<EditarPerfil />} />
       </Routes>
     </BrowserRouter>
   )

@@ -1,0 +1,665 @@
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { usuarioService } from '../services/api'
+import {
+  RadarChart, Radar, PolarGrid, PolarAngleAxis,
+  PolarRadiusAxis, Tooltip, ResponsiveContainer
+} from 'recharts'
+import logo from '../assets/logo.png'
+import fondo from '../assets/fondo.png'
+import AvatarPreview from '../components/AvatarPreview'
+import Cara from '../components/avatar/Cara'
+import Pelo from '../components/avatar/Pelo'
+import Ojos from '../components/avatar/Ojos'
+import Nariz from '../components/avatar/Nariz'
+import Boca from '../components/avatar/Boca'
+import Barba from '../components/avatar/Barba'
+import Camiseta from '../components/avatar/Camiseta'
+
+const PixelBox = ({ children, style = {}, onClick }) => (
+  <div onClick={onClick} style={{
+    position: 'relative',
+    background: style.borderColor || '#fff',
+    clipPath: 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0% calc(100% - 6px), 0% 6px)',
+    cursor: onClick ? 'pointer' : 'default',
+    ...style,
+  }}>
+    <div style={{
+      margin: '2px',
+      background: style.innerBackground || '#000',
+      clipPath: 'polygon(5px 0%, calc(100% - 5px) 0%, 100% 5px, 100% calc(100% - 5px), calc(100% - 5px) 100%, 5px 100%, 0% calc(100% - 5px), 0% 5px)',
+      padding: style.padding || '10px 16px',
+      textAlign: 'center',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
+      {children}
+    </div>
+  </div>
+)
+
+const CATEGORIAS = [
+  { key: 'cara',      label: 'CARA',      colorKey: 'colorPiel',  tieneColor: true  },
+  { key: 'ojos',      label: 'OJOS',      colorKey: 'colorOjos',  tieneColor: true  },
+  { key: 'pelo',      label: 'PELO',      colorKey: 'colorPelo',  tieneColor: true  },
+  { key: 'barba',     label: 'BARBA',     colorKey: 'colorBarba', tieneColor: true  },
+  { key: 'nariz',     label: 'NARIZ',     colorKey: null,         tieneColor: false },
+  { key: 'boca',      label: 'BOCA',      colorKey: null,         tieneColor: false },
+  { key: 'accesorio', label: 'ACCESORIO', colorKey: null,         tieneColor: false },
+  { key: 'camiseta',  label: 'CAMISETA',  colorKey: null,         tieneColor: false },
+]
+
+const COLORES_PIEL  = ['#FDDBB4', '#F5CBA7', '#E8A87C', '#C68642', '#8D5524', '#4A2C0A']
+const COLORES_PELO  = ['#F0C040', '#C8A951', '#8B4513', '#4A2C0A', '#1a1a1a', '#CC0000', '#808080', '#FFFFFF']
+const COLORES_OJOS  = ['#1E90FF', '#2ECC71', '#8B4513', '#1a1a1a', '#9B59B6', '#E74C3C']
+const COLORES_BARBA = ['#F0C040', '#C8A951', '#8B4513', '#4A2C0A', '#1a1a1a', '#808080']
+const FONDOS = [
+  { key: 'gradiente_01', color: '#9B59B6' },
+  { key: 'gradiente_02', color: '#0f3460' },
+  { key: 'gradiente_03', color: '#2ecc71' },
+  { key: 'gradiente_04', color: '#e74c3c' },
+  { key: 'gradiente_05', color: '#f0c040' },
+  { key: 'gradiente_06', color: '#333'    },
+]
+
+const OPCIONES = {
+  cara:      ['cara_01'],
+  ojos:      ['ojos_01'],
+  pelo:      ['pelo_01'],
+  barba:     ['ninguno', 'barba_01'],
+  nariz:     ['nariz_01'],
+  boca:      ['boca_01'],
+  accesorio: ['ninguno'],
+  camiseta:  ['camiseta_01'],
+}
+
+const statsNombresCompletos = {
+  VEL: 'VELOCIDAD', AGT: 'AGUANTE', PAS: 'PASE',   GMB: 'GAMBETA',
+  DEF: 'DEFENSA',   FIS: 'FÍSICO',  PEG: 'PEGADA', TIR: 'TIRO',
+  ATJ: 'ATAJADA',   REF: 'REFLEJO'
+}
+
+const statsNombresCortos = {
+  VEL: 'VEL', AGT: 'AGT', PAS: 'PAS', GMB: 'GMB',
+  DEF: 'DEF', FIS: 'FIS', PEG: 'PEG', TIR: 'TIR',
+  ATJ: 'ATJ', REF: 'REF'
+}
+
+function EditarPerfil() {
+  const navigate = useNavigate()
+  const [paso, setPaso] = useState(1)
+  const [cargando, setCargando] = useState(true)
+  const [guardando, setGuardando] = useState(false)
+  const [error, setError] = useState('')
+  const [categoriaActiva, setCategoriaActiva] = useState('cara')
+
+  const [form, setForm] = useState(null)
+
+  useEffect(() => {
+    cargarPerfil()
+  }, [])
+
+  const cargarPerfil = async () => {
+    try {
+      const res = await usuarioService.miPerfil()
+      const u = res.data
+      const statsObj = {}
+      u.stats?.forEach(s => { statsObj[s.nombre] = s.puntuacion })
+
+      setForm({
+        nombre: u.nombre,
+        posicion: u.posicion,
+        avatar: {
+          cara:                   u.avatar?.cara || 'cara_01',
+          colorPiel:              u.avatar?.colorPiel || '#F5CBA7',
+          ojos:                   u.avatar?.ojos || 'ojos_01',
+          colorOjos:              u.avatar?.colorOjos || '#1E90FF',
+          pelo:                   u.avatar?.pelo || 'pelo_01',
+          colorPelo:              u.avatar?.colorPelo || '#4A2C0A',
+          barba:                  u.avatar?.barba || 'ninguno',
+          colorBarba:             u.avatar?.colorBarba || '#4A2C0A',
+          nariz:                  u.avatar?.nariz || 'nariz_01',
+          boca:                   u.avatar?.boca || 'boca_01',
+          accesorio:              u.avatar?.accesorio || 'ninguno',
+          camiseta:               u.avatar?.camiseta || 'camiseta_01',
+          colorCamisetaPrincipal: u.avatar?.colorCamisetaPrincipal || '#CC0000',
+          colorCamisetaSecundario:u.avatar?.colorCamisetaSecundario || '#FFFFFF',
+          fondo:                  u.avatar?.fondo || 'gradiente_01',
+        },
+        stats: {
+          VEL: statsObj['VEL'] || 5,
+          AGT: statsObj['AGT'] || 5,
+          PAS: statsObj['PAS'] || 5,
+          GMB: statsObj['GMB'] || 5,
+          DEF: statsObj['DEF'] || 5,
+          FIS: statsObj['FIS'] || 5,
+          PEG: statsObj['PEG'] || 5,
+          TIR: statsObj['TIR'] || 5,
+          ATJ: statsObj['ATJ'] || 5,
+          REF: statsObj['REF'] || 5,
+        }
+      })
+    } catch {
+      setError('ERROR AL CARGAR EL PERFIL.')
+    } finally {
+      setCargando(false)
+    }
+  }
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value })
+  }
+
+  const handleStat = (stat, valor) => {
+    setForm({ ...form, stats: { ...form.stats, [stat]: Number(valor) } })
+  }
+
+  const handleAvatar = (key, valor) => {
+    setForm({ ...form, avatar: { ...form.avatar, [key]: valor } })
+  }
+
+  const handleAleatorio = () => {
+    const rand = (arr) => arr[Math.floor(Math.random() * arr.length)]
+    setForm({
+      ...form,
+      avatar: {
+        ...form.avatar,
+        cara:                   rand(OPCIONES.cara),
+        colorPiel:              rand(COLORES_PIEL),
+        ojos:                   rand(OPCIONES.ojos),
+        colorOjos:              rand(COLORES_OJOS),
+        pelo:                   rand(OPCIONES.pelo),
+        colorPelo:              rand(COLORES_PELO),
+        barba:                  rand(OPCIONES.barba),
+        colorBarba:             rand(COLORES_BARBA),
+        nariz:                  rand(OPCIONES.nariz),
+        boca:                   rand(OPCIONES.boca),
+        fondo:                  rand(FONDOS).key,
+      }
+    })
+  }
+
+  const handleGuardar = async () => {
+    setError('')
+    setGuardando(true)
+    try {
+      await usuarioService.actualizar({
+        nombre: form.nombre,
+        posicion: form.posicion,
+        stats: form.stats,
+        avatar: form.avatar,
+      })
+      navigate('/perfil')
+    } catch (err) {
+      setError(err.response?.data?.mensaje || 'ERROR AL GUARDAR.')
+    } finally {
+      setGuardando(false)
+    }
+  }
+
+  const radarData = Object.entries(form?.stats || {}).map(([key, val]) => ({
+    stat: statsNombresCortos[key],
+    valor: val,
+    fullMark: 10
+  }))
+
+  const categoriaActual = CATEGORIAS.find(c => c.key === categoriaActiva)
+  const opcionesActuales = OPCIONES[categoriaActiva] || []
+  const colorKeyActual = categoriaActual?.colorKey
+
+  if (cargando || !form) return (
+    <div style={{ ...styles.container, backgroundImage: `url(${fondo})` }}>
+      <p style={styles.mensaje}>CARGANDO...</p>
+    </div>
+  )
+
+  const posiciones = [
+    { valor: 'ARQ', label: 'ARQUERO',   numero: '1' },
+    { valor: 'DEF', label: 'DEFENSOR',  numero: '2' },
+    { valor: 'VOL', label: 'VOLANTE',   numero: '5' },
+    { valor: 'DEL', label: 'DELANTERO', numero: '9' },
+  ]
+
+  return (
+    <div style={{ ...styles.container, backgroundImage: `url(${fondo})` }}>
+
+      {/* Header */}
+      <div style={styles.header}>
+        <img src={logo} alt="Sale Fulbo" style={styles.logoHeader} />
+        <div style={styles.headerDerecha}>
+          <PixelBox onClick={() => navigate('/perfil')}>
+            <span style={styles.botonTextoSm}>&lt; VOLVER</span>
+          </PixelBox>
+        </div>
+      </div>
+
+      <div style={styles.contenido}>
+        {error && <p style={styles.error}>{error}</p>}
+
+        <div style={styles.cardWrapper}>
+          <div style={styles.cardInner}>
+
+            {/* Pasos */}
+            <div style={styles.pasos}>
+              {['1. JUGADOR', '2. AVATAR', '3. STATS'].map((label, i) => (
+                <div key={i} style={styles.pasoWrapper}>
+                  <div style={{
+                    background: paso === i + 1 ? '#4cff4c' : '#fff',
+                    clipPath: 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0% calc(100% - 6px), 0% 6px)',
+                    cursor: 'pointer',
+                  }} onClick={() => setPaso(i + 1)}>
+                    <div style={{
+                      margin: '2px',
+                      background: paso === i + 1 ? '#1a7a1a' : '#000',
+                      clipPath: 'polygon(5px 0%, calc(100% - 5px) 0%, 100% 5px, 100% calc(100% - 5px), calc(100% - 5px) 100%, 5px 100%, 0% calc(100% - 5px), 0% 5px)',
+                      padding: '6px 10px',
+                      color: paso === i + 1 ? '#4cff4c' : '#fff',
+                      fontSize: '9px',
+                      fontFamily: "'Press Start 2P', cursive",
+                      letterSpacing: '1px',
+                    }}>
+                      {label}
+                    </div>
+                  </div>
+                  {i < 2 && <span style={styles.flecha}>➔</span>}
+                </div>
+              ))}
+            </div>
+
+            {/* PASO 1 — Jugador */}
+            {paso === 1 && (
+              <div style={styles.form}>
+                <div style={styles.campo}>
+                  <label style={styles.label}>NOMBRE</label>
+                  <PixelBox>
+                    <input style={styles.inputInner} name="nombre"
+                      value={form.nombre} onChange={handleChange} />
+                  </PixelBox>
+                </div>
+                <div style={styles.campo}>
+                  <label style={styles.label}>POSICION</label>
+                  <div style={styles.posicionesGrid}>
+                    {posiciones.map(p => (
+                      <div key={p.valor}
+                        onClick={() => setForm({ ...form, posicion: p.valor })}
+                        style={{
+                          ...styles.posicionBtn,
+                          ...(form.posicion === p.valor ? styles.posicionBtnActivo : {})
+                        }}>
+                        <span style={styles.posicionNumero}>{p.numero}</span>
+                        <span style={styles.posicionLabel}>{p.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <PixelBox style={{ innerBackground: '#1a7a1a' }} onClick={() => setPaso(2)}>
+                  <div style={styles.botonTexto}>SIGUIENTE &gt;</div>
+                </PixelBox>
+              </div>
+            )}
+
+            {/* PASO 2 — Avatar */}
+            {paso === 2 && (
+              <>
+                <div style={styles.avatarLayout}>
+                  {/* Categorías */}
+                  <div style={styles.avatarCategorias}>
+                    <p style={styles.avatarSeccionLabel}>— ROSTRO —</p>
+                    {CATEGORIAS.slice(0, 5).map(cat => (
+                      <div key={cat.key}
+                        onClick={() => setCategoriaActiva(cat.key)}
+                        style={{
+                          ...styles.categoriaItem,
+                          ...(categoriaActiva === cat.key ? styles.categoriaActiva : {})
+                        }}>
+                        {categoriaActiva === cat.key && <span style={styles.categoriaFlecha}>▶</span>}
+                        <span style={styles.categoriaLabel}>{cat.label}</span>
+                      </div>
+                    ))}
+                    <p style={{ ...styles.avatarSeccionLabel, marginTop: '12px' }}>— ESTILO —</p>
+                    {CATEGORIAS.slice(5).map(cat => (
+                      <div key={cat.key}
+                        onClick={() => setCategoriaActiva(cat.key)}
+                        style={{
+                          ...styles.categoriaItem,
+                          ...(categoriaActiva === cat.key ? styles.categoriaActiva : {})
+                        }}>
+                        {categoriaActiva === cat.key && <span style={styles.categoriaFlecha}>▶</span>}
+                        <span style={styles.categoriaLabel}>{cat.label}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Centro */}
+                  <div style={styles.avatarCentro}>
+                    <p style={styles.avatarSeccionLabel}>VISTA PREVIA</p>
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
+                      <AvatarPreview config={form.avatar} size={180} />
+                    </div>
+                    <p style={styles.avatarSeccionLabel}>FONDO</p>
+                    <div style={styles.coloresGrid}>
+                      {FONDOS.map(f => (
+                        <div key={f.key}
+                          onClick={() => handleAvatar('fondo', f.key)}
+                          style={{
+                            ...styles.colorCirculo,
+                            background: f.color,
+                            border: form.avatar.fondo === f.key
+                              ? '3px solid #4cff4c' : '2px solid #444',
+                          }} />
+                      ))}
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                      <PixelBox style={{ flex: 1 }} onClick={handleAleatorio}>
+                        <span style={styles.botonTextoXs}>🎲 ALEATORIO</span>
+                      </PixelBox>
+                      <PixelBox style={{ flex: 1 }} onClick={() => setForm({
+                        ...form, avatar: {
+                          cara: 'cara_01', colorPiel: '#F5CBA7',
+                          ojos: 'ojos_01', colorOjos: '#1E90FF',
+                          pelo: 'pelo_01', colorPelo: '#4A2C0A',
+                          barba: 'ninguno', colorBarba: '#4A2C0A',
+                          nariz: 'nariz_01', boca: 'boca_01',
+                          accesorio: 'ninguno', camiseta: 'camiseta_01',
+                          colorCamisetaPrincipal: '#CC0000',
+                          colorCamisetaSecundario: '#FFFFFF',
+                          fondo: 'gradiente_01',
+                        }
+                      })}>
+                        <span style={styles.botonTextoXs}>↺ REINICIAR</span>
+                      </PixelBox>
+                    </div>
+                  </div>
+
+                  {/* Opciones */}
+                  <div style={styles.avatarOpciones}>
+                    <p style={styles.avatarSeccionLabel}>{categoriaActual?.label}</p>
+                    <div style={styles.opcionesGrid}>
+                      {opcionesActuales.map(op => (
+                        <div key={op}
+                          onClick={() => handleAvatar(categoriaActiva, op)}
+                          style={{
+                            ...styles.opcionItem,
+                            border: form.avatar[categoriaActiva] === op
+                              ? '2px solid #4cff4c' : '2px solid #333',
+                            background: form.avatar[categoriaActiva] === op ? '#1a7a1a' : '#111',
+                          }}>
+                          <span style={{ fontSize: '9px', color: '#888', fontFamily: "'Press Start 2P', cursive" }}>
+                            {op.replace('_', ' ')}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {colorKeyActual && (
+                      <>
+                        <p style={{ ...styles.avatarSeccionLabel, marginTop: '12px' }}>COLOR</p>
+                        <div style={styles.coloresGrid}>
+                          {(categoriaActiva === 'cara' ? COLORES_PIEL
+                            : categoriaActiva === 'ojos' ? COLORES_OJOS
+                            : categoriaActiva === 'barba' ? COLORES_BARBA
+                            : COLORES_PELO
+                          ).map(c => (
+                            <div key={c}
+                              onClick={() => handleAvatar(colorKeyActual, c)}
+                              style={{
+                                ...styles.colorCirculo,
+                                background: c,
+                                border: form.avatar[colorKeyActual] === c
+                                  ? '3px solid #4cff4c' : '2px solid #444',
+                              }} />
+                          ))}
+                        </div>
+                      </>
+                    )}
+
+                    {categoriaActiva === 'camiseta' && (
+                      <>
+                        <p style={{ ...styles.avatarSeccionLabel, marginTop: '12px' }}>COLOR PRINCIPAL</p>
+                        <div style={styles.coloresGrid}>
+                          {['#CC0000','#0000CC','#1a7a1a','#f0c040','#fff','#000','#FF6600','#9B59B6'].map(c => (
+                            <div key={c}
+                              onClick={() => handleAvatar('colorCamisetaPrincipal', c)}
+                              style={{
+                                ...styles.colorCirculo,
+                                background: c,
+                                border: form.avatar.colorCamisetaPrincipal === c
+                                  ? '3px solid #4cff4c' : '2px solid #444',
+                              }} />
+                          ))}
+                        </div>
+                        <p style={{ ...styles.avatarSeccionLabel, marginTop: '8px' }}>COLOR SECUNDARIO</p>
+                        <div style={styles.coloresGrid}>
+                          {['#FFFFFF','#CC0000','#0000CC','#1a7a1a','#f0c040','#000','#FF6600','#9B59B6'].map(c => (
+                            <div key={c}
+                              onClick={() => handleAvatar('colorCamisetaSecundario', c)}
+                              style={{
+                                ...styles.colorCirculo,
+                                background: c,
+                                border: form.avatar.colorCamisetaSecundario === c
+                                  ? '3px solid #4cff4c' : '2px solid #444',
+                              }} />
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                <div style={{ ...styles.botonesPaso, marginTop: '16px' }}>
+                  <PixelBox style={{ flex: 1 }} onClick={() => setPaso(1)}>
+                    <div style={styles.botonTexto}>&lt; ATRAS</div>
+                  </PixelBox>
+                  <PixelBox style={{ flex: 1, innerBackground: '#1a7a1a' }} onClick={() => setPaso(3)}>
+                    <div style={styles.botonTexto}>SIGUIENTE &gt;</div>
+                  </PixelBox>
+                </div>
+              </>
+            )}
+
+            {/* PASO 3 — Stats */}
+            {paso === 3 && (
+              <div style={styles.form}>
+                <div style={styles.statsLayout}>
+                  <div style={styles.sliders}>
+                    {Object.entries(form.stats).map(([key, val]) => (
+                      <div key={key} style={styles.statRow}>
+                        <label style={styles.statLabel}>{statsNombresCompletos[key]}</label>
+                        <input type="range" min="0" max="10" value={val}
+                          onChange={e => handleStat(key, e.target.value)}
+                          style={styles.slider} />
+                        <span style={styles.statValor}>{val}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={styles.radar}>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <RadarChart data={radarData}>
+                        <PolarGrid stroke="#2d6a2d" />
+                        <PolarAngleAxis dataKey="stat"
+                          tick={{ fill: '#4cff4c', fontSize: 9 }} />
+                        <PolarRadiusAxis domain={[0, 10]} tick={false} axisLine={false} />
+                        <Radar dataKey="valor" stroke="#f0c040" fill="#f0c040" fillOpacity={0.4} />
+                        <Tooltip contentStyle={{
+                          background: '#000', border: '1px solid #4cff4c',
+                          color: '#4cff4c', fontSize: '11px'
+                        }} />
+                      </RadarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+                <div style={styles.botonesPaso}>
+                  <PixelBox style={{ flex: 1 }} onClick={() => setPaso(2)}>
+                    <div style={styles.botonTexto}>&lt; ATRAS</div>
+                  </PixelBox>
+                  <PixelBox style={{ flex: 1, innerBackground: '#1a7a1a' }} onClick={handleGuardar}>
+                    <div style={styles.botonTexto}>
+                      {guardando ? 'GUARDANDO...' : 'GUARDAR >'}
+                    </div>
+                  </PixelBox>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const styles = {
+  container: {
+    minHeight: '100vh',
+    backgroundSize: 'cover',
+    backgroundRepeat: 'repeat',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  header: {
+    background: 'rgba(0,0,0,0.9)',
+    borderBottom: '3px solid #4cff4c',
+    padding: '10px 24px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  logoHeader: {
+    height: '36px',
+    filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.8))',
+  },
+  headerDerecha: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+  },
+  contenido: {
+    flex: 1,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    padding: '24px 16px',
+  },
+  cardWrapper: {
+    background: '#fff',
+    clipPath: 'polygon(12px 0%, calc(100% - 12px) 0%, 100% 12px, 100% calc(100% - 12px), calc(100% - 12px) 100%, 12px 100%, 0% calc(100% - 12px), 0% 12px)',
+    width: '100%',
+    maxWidth: '860px',
+  },
+  cardInner: {
+    margin: '3px',
+    background: '#000',
+    clipPath: 'polygon(10px 0%, calc(100% - 10px) 0%, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0% calc(100% - 10px), 0% 10px)',
+    padding: '28px 32px',
+  },
+  pasos: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '6px',
+    marginBottom: '20px',
+    flexWrap: 'wrap',
+  },
+  pasoWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+  },
+  flecha: { color: '#fff', fontSize: '14px' },
+  form: { display: 'flex', flexDirection: 'column', gap: '14px' },
+  campo: { display: 'flex', flexDirection: 'column', gap: '6px' },
+  label: {
+    color: '#4cff4c', fontSize: '9px',
+    fontWeight: '700', letterSpacing: '1px',
+  },
+  inputInner: {
+    background: 'transparent', border: 'none',
+    color: '#fff', fontSize: '11px',
+    outline: 'none', width: '100%',
+    fontFamily: "'Press Start 2P', cursive",
+  },
+  error: {
+    color: '#ff4c4c', fontSize: '10px',
+    textAlign: 'center', marginBottom: '12px',
+  },
+  mensaje: {
+    color: '#4cff4c', textAlign: 'center',
+    fontSize: '12px', padding: '40px',
+  },
+  botonTexto: {
+    color: '#fff', fontSize: '11px',
+    fontWeight: '900', letterSpacing: '1px',
+    cursor: 'pointer', fontFamily: "'Press Start 2P', cursive",
+  },
+  botonTextoXs: {
+    color: '#fff', fontSize: '9px',
+    fontWeight: '900', letterSpacing: '1px',
+    cursor: 'pointer', fontFamily: "'Press Start 2P', cursive",
+  },
+  botonTextoSm: {
+    color: '#fff', fontSize: '9px',
+    fontWeight: '900', letterSpacing: '1px',
+    cursor: 'pointer', fontFamily: "'Press Start 2P', cursive",
+  },
+  botonesPaso: { display: 'flex', gap: '12px', marginTop: '8px' },
+  posicionesGrid: {
+    display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px',
+  },
+  posicionBtn: {
+    background: '#111', border: '2px solid #444',
+    clipPath: 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0% calc(100% - 6px), 0% 6px)',
+    padding: '12px', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer',
+  },
+  posicionBtnActivo: { background: '#1a7a1a', border: '2px solid #4cff4c' },
+  posicionNumero: {
+    color: '#f0c040', fontSize: '14px', fontWeight: '900',
+    fontFamily: "'Press Start 2P', cursive", width: '24px', textAlign: 'center',
+  },
+  posicionLabel: {
+    color: '#fff', fontSize: '9px', fontWeight: '700',
+    letterSpacing: '1px', fontFamily: "'Press Start 2P', cursive",
+  },
+  avatarLayout: {
+    display: 'grid', gridTemplateColumns: '160px 1fr 1fr',
+    gap: '16px', minHeight: '380px',
+  },
+  avatarCategorias: {
+    display: 'flex', flexDirection: 'column', gap: '4px',
+    borderRight: '2px solid #1a7a1a', paddingRight: '12px',
+  },
+  avatarSeccionLabel: {
+    color: '#4cff4c', fontSize: '8px', letterSpacing: '1px',
+    marginBottom: '4px', fontFamily: "'Press Start 2P', cursive",
+  },
+  categoriaItem: {
+    display: 'flex', alignItems: 'center', gap: '6px',
+    padding: '8px 10px', cursor: 'pointer', color: '#888',
+    fontSize: '9px', fontFamily: "'Press Start 2P', cursive", letterSpacing: '1px',
+  },
+  categoriaActiva: { color: '#4cff4c', background: 'rgba(26, 122, 26, 0.2)' },
+  categoriaFlecha: { color: '#f0c040', fontSize: '10px' },
+  categoriaLabel: { flex: 1 },
+  avatarCentro: {
+    display: 'flex', flexDirection: 'column', alignItems: 'center',
+    borderRight: '2px solid #1a7a1a', paddingRight: '12px',
+  },
+  avatarOpciones: { display: 'flex', flexDirection: 'column' },
+  opcionesGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' },
+  opcionItem: {
+    aspectRatio: '1', display: 'flex', alignItems: 'center',
+    justifyContent: 'center', cursor: 'pointer',
+    clipPath: 'polygon(4px 0%, calc(100% - 4px) 0%, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 0% calc(100% - 4px), 0% 4px)',
+    padding: '4px',
+  },
+  coloresGrid: { display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '4px' },
+  colorCirculo: { width: '22px', height: '22px', borderRadius: '50%', cursor: 'pointer' },
+  statsLayout: { display: 'flex', gap: '20px', alignItems: 'flex-start' },
+  sliders: { flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' },
+  statRow: { display: 'flex', alignItems: 'center', gap: '8px' },
+  statLabel: { color: '#4cff4c', fontSize: '8px', fontWeight: '700', width: '68px' },
+  slider: { flex: 1 },
+  statValor: { color: '#f0c040', fontWeight: '900', fontSize: '12px', width: '18px', textAlign: 'center' },
+  radar: { width: '260px', flexShrink: 0 },
+}
+
+export default EditarPerfil
