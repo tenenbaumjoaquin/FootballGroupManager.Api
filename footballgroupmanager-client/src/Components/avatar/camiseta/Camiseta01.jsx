@@ -1,7 +1,13 @@
 function Camiseta01({ colorPrincipal = '#0b62cd', colorSecundario = '#e7e404' }) {
   return (
-    <svg id="Camiseta" xmlns="http://www.w3.org/2000/svg" width="54" height="80" viewBox="0 0 54 80"
-      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
+    <svg 
+      id="Camiseta" 
+      xmlns="http://www.w3.org/2000/svg" 
+      width="54" 
+      height="80" 
+      viewBox="0 0 54 80"
+      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+    >
       <g id="color2" fill={colorSecundario}>
         <rect y="71" width="54" height="9"/>
       </g>

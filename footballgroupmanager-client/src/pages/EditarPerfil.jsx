@@ -8,13 +8,6 @@ import {
 import logo from '../assets/logo.png'
 import fondo from '../assets/fondo.png'
 import AvatarPreview from '../components/AvatarPreview'
-import Cara from '../components/avatar/Cara'
-import Pelo from '../components/avatar/Pelo'
-import Ojos from '../components/avatar/Ojos'
-import Nariz from '../components/avatar/Nariz'
-import Boca from '../components/avatar/Boca'
-import Barba from '../components/avatar/Barba'
-import Camiseta from '../components/avatar/Camiseta'
 
 const PixelBox = ({ children, style = {}, onClick }) => (
   <div onClick={onClick} style={{
@@ -51,9 +44,9 @@ const CATEGORIAS = [
 ]
 
 const COLORES_PIEL  = ['#FDDBB4', '#F5CBA7', '#E8A87C', '#C68642', '#8D5524', '#4A2C0A']
-const COLORES_PELO  = ['#F0C040', '#C8A951', '#8B4513', '#4A2C0A', '#1a1a1a', '#CC0000', '#808080', '#FFFFFF']
-const COLORES_OJOS  = ['#1E90FF', '#2ECC71', '#8B4513', '#1a1a1a', '#9B59B6', '#E74C3C']
-const COLORES_BARBA = ['#F0C040', '#C8A951', '#8B4513', '#4A2C0A', '#1a1a1a', '#808080']
+const COLORES_PELO  = ['#F0C040', '#051042', '#8B4513', '#4A2C0A', '#1a1a1a', '#CC0000', '#808080', '#FFFFFF']
+const COLORES_OJOS  = ['#1E90FF', '#0a893f', '#8B4513', '#1a1a1a', '#9B59B6', '#E74C3C']
+const COLORES_BARBA = ['#F0C040', '#051042', '#8B4513', '#4A2C0A', '#1a1a1a', '#CC0000', '#808080', '#FFFFFF']
 const FONDOS = [
   { key: 'gradiente_01', color: '#9B59B6' },
   { key: 'gradiente_02', color: '#0f3460' },
@@ -64,14 +57,17 @@ const FONDOS = [
 ]
 
 const OPCIONES = {
-  cara:      ['cara_01'],
-  ojos:      ['ojos_01'],
-  pelo:      ['pelo_01'],
+  cara:      ['cara_01', 'cara_02'],
+  ojos:      ['ojos_01', 'ojos_02'],
+  pelo:      ['pelo_01', 'pelo_02'],
   barba:     ['ninguno', 'barba_01'],
-  nariz:     ['nariz_01'],
-  boca:      ['boca_01'],
+  nariz:     ['nariz_01', 'nariz_02'],
+  boca:      ['boca_01', 'boca_02'],
   accesorio: ['ninguno'],
-  camiseta:  ['camiseta_01'],
+  camiseta:  [
+    { id: 'camiseta_01', tieneColorSecundario: true  },
+    { id: 'camiseta_02', tieneColorSecundario: false },
+  ],
 }
 
 const statsNombresCompletos = {
@@ -93,12 +89,9 @@ function EditarPerfil() {
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState('')
   const [categoriaActiva, setCategoriaActiva] = useState('cara')
-
   const [form, setForm] = useState(null)
 
-  useEffect(() => {
-    cargarPerfil()
-  }, [])
+  useEffect(() => { cargarPerfil() }, [])
 
   const cargarPerfil = async () => {
     try {
@@ -106,38 +99,32 @@ function EditarPerfil() {
       const u = res.data
       const statsObj = {}
       u.stats?.forEach(s => { statsObj[s.nombre] = s.puntuacion })
-
       setForm({
         nombre: u.nombre,
         posicion: u.posicion,
         avatar: {
-          cara:                   u.avatar?.cara || 'cara_01',
-          colorPiel:              u.avatar?.colorPiel || '#F5CBA7',
-          ojos:                   u.avatar?.ojos || 'ojos_01',
-          colorOjos:              u.avatar?.colorOjos || '#1E90FF',
-          pelo:                   u.avatar?.pelo || 'pelo_01',
-          colorPelo:              u.avatar?.colorPelo || '#4A2C0A',
-          barba:                  u.avatar?.barba || 'ninguno',
-          colorBarba:             u.avatar?.colorBarba || '#4A2C0A',
-          nariz:                  u.avatar?.nariz || 'nariz_01',
-          boca:                   u.avatar?.boca || 'boca_01',
-          accesorio:              u.avatar?.accesorio || 'ninguno',
-          camiseta:               u.avatar?.camiseta || 'camiseta_01',
-          colorCamisetaPrincipal: u.avatar?.colorCamisetaPrincipal || '#CC0000',
-          colorCamisetaSecundario:u.avatar?.colorCamisetaSecundario || '#FFFFFF',
-          fondo:                  u.avatar?.fondo || 'gradiente_01',
+          cara:                    u.avatar?.cara                    || 'cara_01',
+          colorPiel:               u.avatar?.colorPiel               || '#F5CBA7',
+          ojos:                    u.avatar?.ojos                    || 'ojos_01',
+          colorOjos:               u.avatar?.colorOjos               || '#1E90FF',
+          pelo:                    u.avatar?.pelo                    || 'pelo_01',
+          colorPelo:               u.avatar?.colorPelo               || '#4A2C0A',
+          barba:                   u.avatar?.barba                   || 'ninguno',
+          colorBarba:              u.avatar?.colorBarba              || '#4A2C0A',
+          nariz:                   u.avatar?.nariz                   || 'nariz_01',
+          boca:                    u.avatar?.boca                    || 'boca_01',
+          accesorio:               u.avatar?.accesorio               || 'ninguno',
+          camiseta:                u.avatar?.camiseta                || 'camiseta_01',
+          colorCamisetaPrincipal:  u.avatar?.colorCamisetaPrincipal  || '#CC0000',
+          colorCamisetaSecundario: u.avatar?.colorCamisetaSecundario || '#FFFFFF',
+          fondo:                   u.avatar?.fondo                   || 'gradiente_01',
         },
         stats: {
-          VEL: statsObj['VEL'] || 5,
-          AGT: statsObj['AGT'] || 5,
-          PAS: statsObj['PAS'] || 5,
-          GMB: statsObj['GMB'] || 5,
-          DEF: statsObj['DEF'] || 5,
-          FIS: statsObj['FIS'] || 5,
-          PEG: statsObj['PEG'] || 5,
-          TIR: statsObj['TIR'] || 5,
-          ATJ: statsObj['ATJ'] || 5,
-          REF: statsObj['REF'] || 5,
+          VEL: statsObj['VEL'] || 5, AGT: statsObj['AGT'] || 5,
+          PAS: statsObj['PAS'] || 5, GMB: statsObj['GMB'] || 5,
+          DEF: statsObj['DEF'] || 5, FIS: statsObj['FIS'] || 5,
+          PEG: statsObj['PEG'] || 5, TIR: statsObj['TIR'] || 5,
+          ATJ: statsObj['ATJ'] || 5, REF: statsObj['REF'] || 5,
         }
       })
     } catch {
@@ -147,17 +134,9 @@ function EditarPerfil() {
     }
   }
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
-  }
-
-  const handleStat = (stat, valor) => {
-    setForm({ ...form, stats: { ...form.stats, [stat]: Number(valor) } })
-  }
-
-  const handleAvatar = (key, valor) => {
-    setForm({ ...form, avatar: { ...form.avatar, [key]: valor } })
-  }
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
+  const handleStat = (stat, valor) => setForm({ ...form, stats: { ...form.stats, [stat]: Number(valor) } })
+  const handleAvatar = (key, valor) => setForm({ ...form, avatar: { ...form.avatar, [key]: valor } })
 
   const handleAleatorio = () => {
     const rand = (arr) => arr[Math.floor(Math.random() * arr.length)]
@@ -175,6 +154,9 @@ function EditarPerfil() {
         colorBarba:             rand(COLORES_BARBA),
         nariz:                  rand(OPCIONES.nariz),
         boca:                   rand(OPCIONES.boca),
+        camiseta:               rand(OPCIONES.camiseta).id,
+        colorCamisetaPrincipal: rand(COLORES_PELO),
+        colorCamisetaSecundario: '#FFFFFF',
         fondo:                  rand(FONDOS).key,
       }
     })
@@ -185,10 +167,10 @@ function EditarPerfil() {
     setGuardando(true)
     try {
       await usuarioService.actualizar({
-        nombre: form.nombre,
+        nombre:   form.nombre,
         posicion: form.posicion,
-        stats: form.stats,
-        avatar: form.avatar,
+        stats:    form.stats,
+        avatar:   form.avatar,
       })
       navigate('/perfil')
     } catch (err) {
@@ -199,20 +181,12 @@ function EditarPerfil() {
   }
 
   const radarData = Object.entries(form?.stats || {}).map(([key, val]) => ({
-    stat: statsNombresCortos[key],
-    valor: val,
-    fullMark: 10
+    stat: statsNombresCortos[key], valor: val, fullMark: 10
   }))
 
-  const categoriaActual = CATEGORIAS.find(c => c.key === categoriaActiva)
+  const categoriaActual  = CATEGORIAS.find(c => c.key === categoriaActiva)
   const opcionesActuales = OPCIONES[categoriaActiva] || []
-  const colorKeyActual = categoriaActual?.colorKey
-
-  if (cargando || !form) return (
-    <div style={{ ...styles.container, backgroundImage: `url(${fondo})` }}>
-      <p style={styles.mensaje}>CARGANDO...</p>
-    </div>
-  )
+  const colorKeyActual   = categoriaActual?.colorKey
 
   const posiciones = [
     { valor: 'ARQ', label: 'ARQUERO',   numero: '1' },
@@ -221,10 +195,14 @@ function EditarPerfil() {
     { valor: 'DEL', label: 'DELANTERO', numero: '9' },
   ]
 
+  if (cargando || !form) return (
+    <div style={{ ...styles.container, backgroundImage: `url(${fondo})` }}>
+      <p style={styles.mensaje}>CARGANDO...</p>
+    </div>
+  )
+
   return (
     <div style={{ ...styles.container, backgroundImage: `url(${fondo})` }}>
-
-      {/* Header */}
       <div style={styles.header}>
         <img src={logo} alt="Sale Fulbo" style={styles.logoHeader} />
         <div style={styles.headerDerecha}>
@@ -236,7 +214,6 @@ function EditarPerfil() {
 
       <div style={styles.contenido}>
         {error && <p style={styles.error}>{error}</p>}
-
         <div style={styles.cardWrapper}>
           <div style={styles.cardInner}>
 
@@ -303,35 +280,27 @@ function EditarPerfil() {
             {paso === 2 && (
               <>
                 <div style={styles.avatarLayout}>
-                  {/* Categorías */}
                   <div style={styles.avatarCategorias}>
                     <p style={styles.avatarSeccionLabel}>— ROSTRO —</p>
-                    {CATEGORIAS.slice(0, 5).map(cat => (
+                    {CATEGORIAS.slice(0, 6).map(cat => (
                       <div key={cat.key}
                         onClick={() => setCategoriaActiva(cat.key)}
-                        style={{
-                          ...styles.categoriaItem,
-                          ...(categoriaActiva === cat.key ? styles.categoriaActiva : {})
-                        }}>
+                        style={{ ...styles.categoriaItem, ...(categoriaActiva === cat.key ? styles.categoriaActiva : {}) }}>
                         {categoriaActiva === cat.key && <span style={styles.categoriaFlecha}>▶</span>}
                         <span style={styles.categoriaLabel}>{cat.label}</span>
                       </div>
                     ))}
                     <p style={{ ...styles.avatarSeccionLabel, marginTop: '12px' }}>— ESTILO —</p>
-                    {CATEGORIAS.slice(5).map(cat => (
+                    {CATEGORIAS.slice(6).map(cat => (
                       <div key={cat.key}
                         onClick={() => setCategoriaActiva(cat.key)}
-                        style={{
-                          ...styles.categoriaItem,
-                          ...(categoriaActiva === cat.key ? styles.categoriaActiva : {})
-                        }}>
+                        style={{ ...styles.categoriaItem, ...(categoriaActiva === cat.key ? styles.categoriaActiva : {}) }}>
                         {categoriaActiva === cat.key && <span style={styles.categoriaFlecha}>▶</span>}
                         <span style={styles.categoriaLabel}>{cat.label}</span>
                       </div>
                     ))}
                   </div>
 
-                  {/* Centro */}
                   <div style={styles.avatarCentro}>
                     <p style={styles.avatarSeccionLabel}>VISTA PREVIA</p>
                     <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
@@ -345,8 +314,7 @@ function EditarPerfil() {
                           style={{
                             ...styles.colorCirculo,
                             background: f.color,
-                            border: form.avatar.fondo === f.key
-                              ? '3px solid #4cff4c' : '2px solid #444',
+                            border: form.avatar.fondo === f.key ? '3px solid #4cff4c' : '2px solid #444',
                           }} />
                       ))}
                     </div>
@@ -372,24 +340,26 @@ function EditarPerfil() {
                     </div>
                   </div>
 
-                  {/* Opciones */}
                   <div style={styles.avatarOpciones}>
                     <p style={styles.avatarSeccionLabel}>{categoriaActual?.label}</p>
                     <div style={styles.opcionesGrid}>
-                      {opcionesActuales.map(op => (
-                        <div key={op}
-                          onClick={() => handleAvatar(categoriaActiva, op)}
-                          style={{
-                            ...styles.opcionItem,
-                            border: form.avatar[categoriaActiva] === op
-                              ? '2px solid #4cff4c' : '2px solid #333',
-                            background: form.avatar[categoriaActiva] === op ? '#1a7a1a' : '#111',
-                          }}>
-                          <span style={{ fontSize: '9px', color: '#888', fontFamily: "'Press Start 2P', cursive" }}>
-                            {op.replace('_', ' ')}
-                          </span>
-                        </div>
-                      ))}
+                      {opcionesActuales.map(op => {
+                        const id = typeof op === 'object' ? op.id : op
+                        return (
+                          <div key={id}
+                            onClick={() => handleAvatar(categoriaActiva, id)}
+                            style={{
+                              ...styles.opcionItem,
+                              border: form.avatar[categoriaActiva] === id
+                                ? '2px solid #4cff4c' : '2px solid #333',
+                              background: form.avatar[categoriaActiva] === id ? '#1a7a1a' : '#111',
+                            }}>
+                            <span style={{ fontSize: '9px', color: '#888', fontFamily: "'Press Start 2P', cursive" }}>
+                              {id.replace('_', ' ')}
+                            </span>
+                          </div>
+                        )
+                      })}
                     </div>
 
                     {colorKeyActual && (
@@ -414,36 +384,117 @@ function EditarPerfil() {
                       </>
                     )}
 
-                    {categoriaActiva === 'camiseta' && (
-                      <>
-                        <p style={{ ...styles.avatarSeccionLabel, marginTop: '12px' }}>COLOR PRINCIPAL</p>
-                        <div style={styles.coloresGrid}>
-                          {['#CC0000','#0000CC','#1a7a1a','#f0c040','#fff','#000','#FF6600','#9B59B6'].map(c => (
-                            <div key={c}
-                              onClick={() => handleAvatar('colorCamisetaPrincipal', c)}
-                              style={{
-                                ...styles.colorCirculo,
-                                background: c,
-                                border: form.avatar.colorCamisetaPrincipal === c
-                                  ? '3px solid #4cff4c' : '2px solid #444',
-                              }} />
-                          ))}
-                        </div>
-                        <p style={{ ...styles.avatarSeccionLabel, marginTop: '8px' }}>COLOR SECUNDARIO</p>
-                        <div style={styles.coloresGrid}>
-                          {['#FFFFFF','#CC0000','#0000CC','#1a7a1a','#f0c040','#000','#FF6600','#9B59B6'].map(c => (
-                            <div key={c}
-                              onClick={() => handleAvatar('colorCamisetaSecundario', c)}
-                              style={{
-                                ...styles.colorCirculo,
-                                background: c,
-                                border: form.avatar.colorCamisetaSecundario === c
-                                  ? '3px solid #4cff4c' : '2px solid #444',
-                              }} />
-                          ))}
-                        </div>
-                      </>
-                    )}
+                    {categoriaActiva === 'camiseta' && (() => {
+                      const camisetaActual = OPCIONES.camiseta.find(c => c.id === form.avatar.camiseta)
+                      return (
+                        <>
+                          <p style={{ ...styles.avatarSeccionLabel, marginTop: '12px' }}>COLOR PRINCIPAL</p>
+                          <div style={styles.coloresGrid}>
+                            {[
+                                // básicos que ya tenías
+                                '#CC0000', // rojo clásico
+                                '#0000CC', // azul clásico
+                                '#1a7a1a', // verde clásico
+                                '#f0c040', // dorado/amarillo
+                                '#FFFFFF', // blanco
+                                '#000000', // negro
+                                '#FF6600', // naranja
+                                '#9B59B6', // violeta
+
+                                // azules fútbol real
+                                '#1E90FF', // azul brillante tipo Napoli/PSG alternativo
+                                '#0B3D91', // azul profundo tipo Chelsea/Boca alternativo
+                                '#002F6C', // azul oscuro clásico europeo
+
+                                // celestes (muy importante para lo que pediste)
+                                '#00AEEF', // celeste fuerte
+                                '#6EC6FF', // celeste claro moderno
+                                '#74C0FC', // celeste tipo selección Argentina/Uruguay variante
+
+                                // verdes fútbol
+                                '#2ECC71', // verde brillante moderno
+                                '#006400', // verde oscuro clásico
+
+                                // rojos/bordó
+                                '#8B0000', // rojo oscuro
+                                '#B22222', // rojo deportivo clásico
+                                '#6D071A', // bordó tipo Roma/West Ham
+
+                                // amarillos/dorados
+                                '#FFD700', // dorado puro
+                                '#F1C40F', // amarillo vivo clásico
+
+                                // extras realistas de camisetas
+                                '#2C3E50', // gris azulado tipo tercer uniforme
+                                '#7F8C8D', // gris deportivo
+                              ].map(c => (
+                              <div key={c}
+                                onClick={() => handleAvatar('colorCamisetaPrincipal', c)}
+                                style={{
+                                  ...styles.colorCirculo,
+                                  background: c,
+                                  border: form.avatar.colorCamisetaPrincipal === c
+                                    ? '3px solid #4cff4c' : '2px solid #444',
+                                }} />
+                            ))}
+                          </div>
+                          {camisetaActual?.tieneColorSecundario && (
+                            <>
+                              <p style={{ ...styles.avatarSeccionLabel, marginTop: '8px' }}>COLOR SECUNDARIO</p>
+                              <div style={styles.coloresGrid}>
+                                {[
+                                    // básicos que ya tenías
+                                    '#CC0000', // rojo clásico
+                                    '#0000CC', // azul clásico
+                                    '#1a7a1a', // verde clásico
+                                    '#f0c040', // dorado/amarillo
+                                    '#FFFFFF', // blanco
+                                    '#000000', // negro
+                                    '#FF6600', // naranja
+                                    '#9B59B6', // violeta
+
+                                    // azules fútbol real
+                                    '#1E90FF', // azul brillante tipo Napoli/PSG alternativo
+                                    '#0B3D91', // azul profundo tipo Chelsea/Boca alternativo
+                                    '#002F6C', // azul oscuro clásico europeo
+
+                                    // celestes (muy importante para lo que pediste)
+                                    '#00AEEF', // celeste fuerte
+                                    '#6EC6FF', // celeste claro moderno
+                                    '#74C0FC', // celeste tipo selección Argentina/Uruguay variante
+
+                                    // verdes fútbol
+                                    '#2ECC71', // verde brillante moderno
+                                    '#006400', // verde oscuro clásico
+
+                                    // rojos/bordó
+                                    '#8B0000', // rojo oscuro
+                                    '#B22222', // rojo deportivo clásico
+                                    '#6D071A', // bordó tipo Roma/West Ham
+
+                                    // amarillos/dorados
+                                    '#FFD700', // dorado puro
+                                    '#F1C40F', // amarillo vivo clásico
+
+                                    // extras realistas de camisetas
+                                    '#2C3E50', // gris azulado tipo tercer uniforme
+                                    '#7F8C8D', // gris deportivo
+                                  ].map(c => (
+                                  <div key={c}
+                                    onClick={() => handleAvatar('colorCamisetaSecundario', c)}
+                                    style={{
+                                      ...styles.colorCirculo,
+                                      background: c,
+                                      border: form.avatar.colorCamisetaSecundario === c
+                                        ? '3px solid #4cff4c' : '2px solid #444',
+                                    }} />
+                                ))}
+                              </div>
+                            </>
+                          )}
+                        </>
+                      )
+                    })()}
                   </div>
                 </div>
 
@@ -477,8 +528,7 @@ function EditarPerfil() {
                     <ResponsiveContainer width="100%" height={300}>
                       <RadarChart data={radarData}>
                         <PolarGrid stroke="#2d6a2d" />
-                        <PolarAngleAxis dataKey="stat"
-                          tick={{ fill: '#4cff4c', fontSize: 9 }} />
+                        <PolarAngleAxis dataKey="stat" tick={{ fill: '#4cff4c', fontSize: 9 }} />
                         <PolarRadiusAxis domain={[0, 10]} tick={false} axisLine={false} />
                         <Radar dataKey="valor" stroke="#f0c040" fill="#f0c040" fillOpacity={0.4} />
                         <Tooltip contentStyle={{
@@ -510,101 +560,59 @@ function EditarPerfil() {
 
 const styles = {
   container: {
-    minHeight: '100vh',
-    backgroundSize: 'cover',
-    backgroundRepeat: 'repeat',
-    display: 'flex',
-    flexDirection: 'column',
+    minHeight: '100vh', backgroundSize: 'cover',
+    backgroundRepeat: 'repeat', display: 'flex', flexDirection: 'column',
   },
   header: {
-    background: 'rgba(0,0,0,0.9)',
-    borderBottom: '3px solid #4cff4c',
-    padding: '10px 24px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    background: 'rgba(0,0,0,0.9)', borderBottom: '3px solid #4cff4c',
+    padding: '10px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
   },
-  logoHeader: {
-    height: '36px',
-    filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.8))',
-  },
-  headerDerecha: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-  },
+  logoHeader: { height: '36px', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.8))' },
+  headerDerecha: { display: 'flex', alignItems: 'center', gap: '12px' },
   contenido: {
-    flex: 1,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    padding: '24px 16px',
+    flex: 1, display: 'flex', justifyContent: 'center',
+    alignItems: 'flex-start', padding: '24px 16px',
   },
   cardWrapper: {
     background: '#fff',
     clipPath: 'polygon(12px 0%, calc(100% - 12px) 0%, 100% 12px, 100% calc(100% - 12px), calc(100% - 12px) 100%, 12px 100%, 0% calc(100% - 12px), 0% 12px)',
-    width: '100%',
-    maxWidth: '860px',
+    width: '100%', maxWidth: '860px',
   },
   cardInner: {
-    margin: '3px',
-    background: '#000',
+    margin: '3px', background: '#000',
     clipPath: 'polygon(10px 0%, calc(100% - 10px) 0%, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0% calc(100% - 10px), 0% 10px)',
     padding: '28px 32px',
   },
   pasos: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '6px',
-    marginBottom: '20px',
-    flexWrap: 'wrap',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    gap: '6px', marginBottom: '20px', flexWrap: 'wrap',
   },
-  pasoWrapper: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '6px',
-  },
+  pasoWrapper: { display: 'flex', alignItems: 'center', gap: '6px' },
   flecha: { color: '#fff', fontSize: '14px' },
   form: { display: 'flex', flexDirection: 'column', gap: '14px' },
   campo: { display: 'flex', flexDirection: 'column', gap: '6px' },
-  label: {
-    color: '#4cff4c', fontSize: '9px',
-    fontWeight: '700', letterSpacing: '1px',
-  },
+  label: { color: '#4cff4c', fontSize: '9px', fontWeight: '700', letterSpacing: '1px' },
   inputInner: {
-    background: 'transparent', border: 'none',
-    color: '#fff', fontSize: '11px',
-    outline: 'none', width: '100%',
+    background: 'transparent', border: 'none', color: '#fff',
+    fontSize: '11px', outline: 'none', width: '100%',
     fontFamily: "'Press Start 2P', cursive",
   },
-  error: {
-    color: '#ff4c4c', fontSize: '10px',
-    textAlign: 'center', marginBottom: '12px',
-  },
-  mensaje: {
-    color: '#4cff4c', textAlign: 'center',
-    fontSize: '12px', padding: '40px',
-  },
+  error: { color: '#ff4c4c', fontSize: '10px', textAlign: 'center', marginBottom: '12px' },
+  mensaje: { color: '#4cff4c', textAlign: 'center', fontSize: '12px', padding: '40px' },
   botonTexto: {
-    color: '#fff', fontSize: '11px',
-    fontWeight: '900', letterSpacing: '1px',
-    cursor: 'pointer', fontFamily: "'Press Start 2P', cursive",
+    color: '#fff', fontSize: '11px', fontWeight: '900',
+    letterSpacing: '1px', cursor: 'pointer', fontFamily: "'Press Start 2P', cursive",
   },
   botonTextoXs: {
-    color: '#fff', fontSize: '9px',
-    fontWeight: '900', letterSpacing: '1px',
-    cursor: 'pointer', fontFamily: "'Press Start 2P', cursive",
+    color: '#fff', fontSize: '9px', fontWeight: '900',
+    letterSpacing: '1px', cursor: 'pointer', fontFamily: "'Press Start 2P', cursive",
   },
   botonTextoSm: {
-    color: '#fff', fontSize: '9px',
-    fontWeight: '900', letterSpacing: '1px',
-    cursor: 'pointer', fontFamily: "'Press Start 2P', cursive",
+    color: '#fff', fontSize: '9px', fontWeight: '900',
+    letterSpacing: '1px', cursor: 'pointer', fontFamily: "'Press Start 2P', cursive",
   },
   botonesPaso: { display: 'flex', gap: '12px', marginTop: '8px' },
-  posicionesGrid: {
-    display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px',
-  },
+  posicionesGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' },
   posicionBtn: {
     background: '#111', border: '2px solid #444',
     clipPath: 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0% calc(100% - 6px), 0% 6px)',
@@ -619,10 +627,7 @@ const styles = {
     color: '#fff', fontSize: '9px', fontWeight: '700',
     letterSpacing: '1px', fontFamily: "'Press Start 2P', cursive",
   },
-  avatarLayout: {
-    display: 'grid', gridTemplateColumns: '160px 1fr 1fr',
-    gap: '16px', minHeight: '380px',
-  },
+  avatarLayout: { display: 'grid', gridTemplateColumns: '160px 1fr 1fr', gap: '16px', minHeight: '380px' },
   avatarCategorias: {
     display: 'flex', flexDirection: 'column', gap: '4px',
     borderRight: '2px solid #1a7a1a', paddingRight: '12px',
@@ -632,9 +637,9 @@ const styles = {
     marginBottom: '4px', fontFamily: "'Press Start 2P', cursive",
   },
   categoriaItem: {
-    display: 'flex', alignItems: 'center', gap: '6px',
-    padding: '8px 10px', cursor: 'pointer', color: '#888',
-    fontSize: '9px', fontFamily: "'Press Start 2P', cursive", letterSpacing: '1px',
+    display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 10px',
+    cursor: 'pointer', color: '#888', fontSize: '9px',
+    fontFamily: "'Press Start 2P', cursive", letterSpacing: '1px',
   },
   categoriaActiva: { color: '#4cff4c', background: 'rgba(26, 122, 26, 0.2)' },
   categoriaFlecha: { color: '#f0c040', fontSize: '10px' },

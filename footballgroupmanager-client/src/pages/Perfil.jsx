@@ -102,8 +102,8 @@ function Perfil() {
         <div style={styles.headerDerecha}>
           <div style={styles.usuarioInfo}>
             <span style={styles.nombreUsuario}>{usuarioLocal?.nombreUsuario?.toUpperCase()}</span>
-            <PixelBox style={{ innerBackground: '#1a7a1a', padding: '6px 10px' }}>
-              <span style={styles.botonTextoSm}>PERFIL</span>
+            <PixelBox onClick={() => navigate('/grupos')}>
+              <span style={styles.botonTextoSm}>&lt; VOLVER</span>
             </PixelBox>
           </div>
           <PixelBox onClick={handleCerrarSesion}>
@@ -127,7 +127,7 @@ function Perfil() {
                 </div>
                 <p style={styles.avatarNombre}>{usuario?.nombre?.toUpperCase()}</p>
                 <p style={styles.avatarPosicion}>
-                    {POSICION_LABEL[usuario?.posicion]}
+                  {POSICION_LABEL[usuario?.posicion]?.toUpperCase()}
                 </p>
                 <p style={styles.avatarCalificacion}>
                     {usuario?.calificacion} — {usuario?.puntajeTotal?.toFixed(2)}
@@ -329,6 +329,7 @@ const styles = {
   },
   avatarBotones: {
     display: 'flex',
+    flexDirection: 'column',
     gap: '8px',
     width: '100%',
     marginTop: '8px',
