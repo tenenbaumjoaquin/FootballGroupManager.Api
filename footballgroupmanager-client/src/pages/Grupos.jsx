@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { grupoService } from '../services/api'
-import logo from '../assets/logo.png'
+import logo from '../assets/logo.svg'
 import fondo from '../assets/fondo.png'
 
 const PixelBox = ({ children, style = {}, onClick }) => (

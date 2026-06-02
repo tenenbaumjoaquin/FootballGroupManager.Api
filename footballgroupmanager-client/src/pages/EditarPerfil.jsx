@@ -5,7 +5,7 @@ import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis,
   PolarRadiusAxis, Tooltip, ResponsiveContainer
 } from 'recharts'
-import logo from '../assets/logo.png'
+import logo from '../assets/logo.svg'
 import fondo from '../assets/fondo.png'
 import AvatarPreview from '../components/AvatarPreview'
 
@@ -57,16 +57,17 @@ const FONDOS = [
 ]
 
 const OPCIONES = {
-  cara:      ['cara_01', 'cara_02'],
-  ojos:      ['ojos_01', 'ojos_02'],
-  pelo:      ['pelo_01', 'pelo_02'],
-  barba:     ['ninguno', 'barba_01'],
-  nariz:     ['nariz_01', 'nariz_02'],
-  boca:      ['boca_01', 'boca_02'],
+  cara:      ['cara_01', 'cara_02','cara_03'],
+  ojos:      ['ojos_01', 'ojos_02', 'ojos_03'],
+  pelo:      ['pelo_01', 'pelo_02', 'pelo_03'],
+  barba:     ['ninguno', 'barba_01', 'barba_02'],
+  nariz:     ['nariz_01', 'nariz_02', 'nariz_03'],
+  boca:      ['boca_01', 'boca_02', 'boca_03'],
   accesorio: ['ninguno'],
   camiseta:  [
     { id: 'camiseta_01', tieneColorSecundario: true  },
     { id: 'camiseta_02', tieneColorSecundario: false },
+    { id: 'camiseta_03', tieneColorSecundario: true  }
   ],
 }
 

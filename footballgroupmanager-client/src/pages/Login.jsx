@@ -4,11 +4,13 @@ import { authService } from '../services/api'
 import logo from '../assets/logo.png'
 import fondo from '../assets/fondo.png'
 
+
 const PixelBox = ({ children, style = {}, onClick }) => (
   <div onClick={onClick} style={{
     position: 'relative',
     background: '#fff',
     clipPath: 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0% calc(100% - 6px), 0% 6px)',
+    cursor: onClick ? 'pointer' : 'default',
     ...style,
   }}>
     <div style={{
@@ -16,6 +18,10 @@ const PixelBox = ({ children, style = {}, onClick }) => (
       background: style.innerBackground || '#000',
       clipPath: 'polygon(5px 0%, calc(100% - 5px) 0%, 100% 5px, 100% calc(100% - 5px), calc(100% - 5px) 100%, 5px 100%, 0% calc(100% - 5px), 0% 5px)',
       padding: style.padding || '12px 16px',
+      textAlign: 'center',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
     }}>
       {children}
     </div>
@@ -53,11 +59,13 @@ function Login() {
   }
 
   return (
-    <div style={{ ...styles.container, backgroundImage: `url(${fondo})` }}>
-      <img src={logo} alt="Sale Fulbo" style={styles.logo} />
+    <div className="login-container"
+      style={{ backgroundImage: `url(${fondo})` }}>
+        <div className="login-header-mobile" />
+      <img src={logo} alt="Sale Fulbo" className="login-logo" />
 
-      <div style={styles.cardWrapper}>
-        <div style={styles.cardInner}>
+      <div className="login-card-wrapper">
+        <div className="login-card-inner">
 
           <h2 style={styles.titulo}>INICIAR SESION</h2>
 
@@ -67,27 +75,19 @@ function Login() {
             <div style={styles.campo}>
               <label style={styles.label}>EMAIL</label>
               <PixelBox>
-                <input
-                  style={styles.inputInner}
-                  type="email"
-                  name="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  autoComplete="off"
-                />
+                <input className="login-input"
+                  type="email" name="email"
+                  value={form.email} onChange={handleChange}
+                  autoComplete="off" />
               </PixelBox>
             </div>
 
             <div style={styles.campo}>
               <label style={styles.label}>CONTRASEÑA</label>
               <PixelBox>
-                <input
-                  style={styles.inputInner}
-                  type="password"
-                  name="password"
-                  value={form.password}
-                  onChange={handleChange}
-                />
+                <input className="login-input"
+                  type="password" name="password"
+                  value={form.password} onChange={handleChange} />
               </PixelBox>
             </div>
 
@@ -104,39 +104,12 @@ function Login() {
           </p>
         </div>
       </div>
+       <div className="login-footer-mobile" />
     </div>
   )
 }
 
 const styles = {
-  container: {
-    minHeight: '100vh',
-    backgroundSize: 'cover',
-    backgroundRepeat: 'repeat',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '20px',
-  },
-  logo: {
-    width: '600px',
-    maxWidth: '90%',
-    marginBottom: '20px',
-    filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.8))',
-  },
-  cardWrapper: {
-    background: '#fff',
-    clipPath: 'polygon(12px 0%, calc(100% - 12px) 0%, 100% 12px, 100% calc(100% - 12px), calc(100% - 12px) 100%, 12px 100%, 0% calc(100% - 12px), 0% 12px)',
-    width: '100%',
-    maxWidth: '480px',
-  },
-  cardInner: {
-    margin: '3px',
-    background: '#000',
-    clipPath: 'polygon(10px 0%, calc(100% - 10px) 0%, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0% calc(100% - 10px), 0% 10px)',
-    padding: '32px 36px',
-  },
   titulo: {
     color: '#4cff4c',
     fontSize: '16px',
@@ -149,15 +122,6 @@ const styles = {
   label: {
     color: '#4cff4c', fontSize: '10px',
     fontWeight: '700', letterSpacing: '1px',
-  },
-  inputInner: {
-    background: 'transparent',
-    border: 'none',
-    color: '#fff',
-    fontSize: '11px',
-    outline: 'none',
-    width: '100%',
-    fontFamily: "'Press Start 2P', cursive",
   },
   error: {
     color: '#ff4c4c', fontSize: '10px',

@@ -1,9 +1,11 @@
 // src/components/avatar/Barba.jsx
 import Barba01 from './barba/Barba01'
+import Barba02 from './barba/Barba02'
 
 const BARBAS = {
   ninguno: null,
   barba_01: Barba01,
+  barba_02: Barba02,
 }
 
 function Barba({ tipo = 'ninguno', colorBarba = '#4c2b23' }) {

@@ -5,7 +5,7 @@ import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis,
   PolarRadiusAxis, Tooltip, ResponsiveContainer
 } from 'recharts'
-import logo from '../assets/logo.png'
+import logo from '../assets/logo.svg'
 import fondo from '../assets/fondo.png'
 import AvatarPreview from '../components/AvatarPreview'
 

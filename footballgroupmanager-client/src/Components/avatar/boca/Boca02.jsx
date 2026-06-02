@@ -14,7 +14,7 @@ function Boca02({ color1 = '#913c32' }) {
         height: '100%',
       }}
     >
-      <g id="Capa_16">
+      <g id="Boca">
         <g id="color1" fill={color1}>
           <rect x="23" y="46" width="8" height="1" />
           <rect x="24" y="47" width="6" height="1" />

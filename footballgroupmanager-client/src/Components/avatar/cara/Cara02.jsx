@@ -1,5 +1,5 @@
 function Cara02({
-colorPiel = '#8e5f4c'
+colorPiel = '#ffcda5'
 }) {
   return (
     <svg
