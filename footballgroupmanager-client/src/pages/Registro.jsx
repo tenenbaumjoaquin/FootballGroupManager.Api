@@ -8,6 +8,7 @@ import {
 import logo from '../assets/logo.svg'
 import fondo from '../assets/fondo.png'
 import AvatarPreview from '../components/AvatarPreview'
+import OpcionAvatar from '../components/OpcionAvatar'
 
 const PixelBox = ({ children, style = {}, onClick }) => (
   <div onClick={onClick} style={{
@@ -43,10 +44,77 @@ const CATEGORIAS = [
   { key: 'camiseta',  label: 'CAMISETA',  colorKey: null,         tieneColor: false },
 ]
 
-const COLORES_PIEL  = ['#FDDBB4', '#F5CBA7', '#E8A87C', '#C68642', '#8D5524', '#4A2C0A']
-const COLORES_PELO  = ['#F0C040', '#C8A951', '#8B4513', '#4A2C0A', '#1a1a1a', '#CC0000', '#808080', '#FFFFFF']
-const COLORES_OJOS  = ['#1E90FF', '#2ECC71', '#8B4513', '#1a1a1a', '#9B59B6', '#E74C3C']
-const COLORES_BARBA = ['#F0C040', '#C8A951', '#8B4513', '#4A2C0A', '#1a1a1a', '#808080']
+const COLORES_PIEL = [
+  // Tonos naturales claros
+  '#FDDBB4', '#F5CBA7', '#F0C090', '#E8A87C',
+  // Tonos naturales medios
+  '#C68642', '#A0522D', '#8D5524', '#6B3A2A',
+  // Tonos oscuros
+  '#4A2C0A', '#3B1F0A',
+]
+const COLORES_PELO = [
+  // Rubios y dorados
+  '#F0C040', '#FFD700', '#F5E642', '#C8A951',
+  // Marrones y castaños
+  '#8B4513', '#A0522D', '#C8A97C', '#4A2C0A',
+  // Negros y oscuros
+  '#1a1a1a', '#2C2C2C',
+  // Blancos y grises
+  '#FFFFFF', '#E8E8E8', '#808080', '#C0C0C0',
+  // Rojos
+  '#CC0000', '#FF4444', '#8B0000', '#FF6B6B',
+  // Azules anime
+  '#1E90FF', '#0047AB', '#00BFFF', '#4169E1',
+  // Verdes anime
+  '#2ECC71', '#00FF7F', '#006400', '#7CFC00',
+  // Violetas y rosas anime
+  '#9B59B6', '#DA70D6', '#FF69B4', '#FF1493',
+  '#8B008B', '#DDA0DD',
+  // Naranjas anime
+  '#FF6600', '#FF8C00', '#FFA500',
+  // Turquesa/cian anime
+  '#00CED1', '#40E0D0', '#00FFFF',
+]
+const COLORES_OJOS = [
+  // Azules
+  '#1E90FF', '#0047AB', '#00BFFF', '#4169E1', '#87CEEB',
+  // Verdes
+  '#2ECC71', '#00FF7F', '#006400', '#556a16', '#98FB98',
+  // Marrones y ámbar
+  '#8B4513', '#A0522D', '#D2691E', '#DAA520',
+  // Negros y grises
+  '#1a1a1a', '#2C2C2C', '#708090',
+  // Rojos y rojizos anime
+  '#E74C3C', '#CC0000', '#FF4444', '#8B0000',
+  // Violetas anime
+  '#9B59B6', '#8B008B', '#DA70D6', '#DDA0DD',
+  // Rosas anime
+  '#FF69B4', '#FF1493', '#FFB6C1',
+  // Naranjas/dorados anime
+  '#FFA500', '#FF8C00', '#DAA520', '#FFD700',
+  // Turquesa/cian anime
+  '#00CED1', '#40E0D0', '#00FFFF',
+  // Blancos/plateados (personajes especiales)
+  '#E8E8E8', '#C0C0C0',
+]
+const COLORES_BARBA = [
+  // Rubios y dorados
+  '#F0C040', '#FFD700', '#C8A951',
+  // Marrones y castaños
+  '#8B4513', '#A0522D', '#C8A97C', '#4A2C0A',
+  // Negros y oscuros
+  '#1a1a1a', '#2C2C2C',
+  // Blancos y grises (barba envejecida)
+  '#FFFFFF', '#E8E8E8', '#808080', '#C0C0C0',
+  // Rojos
+  '#CC0000', '#FF4444', '#8B0000',
+  // Azules anime
+  '#1E90FF', '#0047AB',
+  // Violetas anime
+  '#9B59B6', '#8B008B',
+  // Naranjas anime
+  '#FF6600', '#FFA500',
+]
 const FONDOS = [
   { key: 'gradiente_01', color: '#9B59B6' },
   { key: 'gradiente_02', color: '#0f3460' },
@@ -57,17 +125,18 @@ const FONDOS = [
 ]
 
 const OPCIONES = {
-  cara:      ['cara_01', 'cara_02','cara_03'],
-  ojos:      ['ojos_01', 'ojos_02', 'ojos_03'],
-  pelo:      ['pelo_01', 'pelo_02', 'pelo_03'],
-  barba:     ['ninguno', 'barba_01', 'barba_02'],
-  nariz:     ['nariz_01', 'nariz_02', 'nariz_03'],
-  boca:      ['boca_01', 'boca_02', 'boca_03'],
-  accesorio: ['ninguno'],
+  cara:      ['cara_01', 'cara_02','cara_03','cara_04'],
+  ojos:      ['ojos_01', 'ojos_02', 'ojos_03', 'ojos_04'],
+  pelo:      ['ninguno','pelo_01', 'pelo_02', 'pelo_03', 'pelo_04'],
+  barba:     ['ninguno', 'barba_01', 'barba_02', 'barba_03'],
+  nariz:     ['nariz_01', 'nariz_02', 'nariz_03', 'nariz_04'],
+  boca:      ['boca_01', 'boca_02', 'boca_03', 'boca_04'],
+  accesorio: ['ninguno', 'accesorio_01',],
   camiseta:  [
     { id: 'camiseta_01', tieneColorSecundario: true  },
     { id: 'camiseta_02', tieneColorSecundario: false },
-    { id: 'camiseta_03', tieneColorSecundario: true  }
+    { id: 'camiseta_03', tieneColorSecundario: true  },
+    { id: 'camiseta_04', tieneColorSecundario: true },
   ],
 }
 
@@ -397,10 +466,10 @@ function Registro() {
                             border: form.avatar[categoriaActiva] === id
                               ? '2px solid #4cff4c' : '2px solid #333',
                             background: form.avatar[categoriaActiva] === id ? '#1a7a1a' : '#111',
+                            padding: 0,
+                            overflow: 'hidden',
                           }}>
-                          <span style={{ fontSize: '9px', color: '#888', fontFamily: "'Press Start 2P', cursive" }}>
-                            {id.replace('_', ' ')}
-                          </span>
+                          <OpcionAvatar categoria={categoriaActiva} id={id} />
                         </div>
                       )
                     })}

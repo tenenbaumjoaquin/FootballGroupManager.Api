@@ -1,4 +1,4 @@
-/* ─── LOGIN ─────────────────────────────────────────────── */
+/* LOGIN */
 .login-container {
   min-height: 100vh;
   background-size: cover;
@@ -41,12 +41,18 @@
   font-family: 'Press Start 2P', cursive;
 }
 
-/* ─── MOBILE ─────────────────────────────────────────────── */
+.login-header-mobile {
+  display: none;
+}
+
+.login-footer-mobile {
+  display: none;
+}
+
 @media (max-width: 600px) {
   .login-container {
     justify-content: flex-start;
     padding: 0;
-    position: relative;
     min-height: 100vh;
   }
 
@@ -80,13 +86,11 @@
     width: 100%;
     max-width: 100%;
     clip-path: none;
-    border-radius: 0;
     border-top: 3px solid #fff;
   }
 
   .login-card-inner {
     clip-path: none;
-    border-radius: 0;
     padding: 24px 20px;
   }
 

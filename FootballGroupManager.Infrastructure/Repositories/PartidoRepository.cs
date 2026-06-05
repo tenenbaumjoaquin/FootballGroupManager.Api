@@ -19,6 +19,8 @@ namespace FootballGroupManager.Infrastructure.Repositories
         {
             return await _context.Partidos
                 .Include(p => p.Grupo)
+                    .ThenInclude(g => g.Creador)
+                .Include(p => p.Grupo)
                     .ThenInclude(g => g.Miembros)
                         .ThenInclude(m => m.Usuario)
                 .Include(p => p.Jugadores)
@@ -29,6 +31,8 @@ namespace FootballGroupManager.Infrastructure.Repositories
         public async Task<Partido?> ObtenerActivoPorGrupoAsync(int grupoId)
         {
             return await _context.Partidos
+                .Include(p => p.Grupo)
+                    .ThenInclude(g => g.Creador)
                 .Include(p => p.Grupo)
                     .ThenInclude(g => g.Miembros)
                         .ThenInclude(m => m.Usuario)

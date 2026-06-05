@@ -59,6 +59,7 @@ export const partidoService = {
   cancelar: (partidoId) => api.delete(`/partidos/${partidoId}/cancelar`),
   generarEquipos: (partidoId) => api.post(`/partidos/${partidoId}/equipos`),
   marcarJugado: (partidoId) => api.post(`/partidos/${partidoId}/jugado`),
+  actualizarDetalles: (partidoId, data) => api.put(`/partidos/${partidoId}/detalles`, data),
 }
 
 

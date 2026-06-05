@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { authService } from '../services/api'
-import logo from '../assets/logo.png'
+import logo from '../assets/logo.svg'
 import fondo from '../assets/fondo.png'
-
 
 const PixelBox = ({ children, style = {}, onClick }) => (
   <div onClick={onClick} style={{

@@ -14,5 +14,6 @@ namespace FootballGroupManager.Application.DTOs.Partido
         public double? Latitud { get; set; }
         public double? Longitud { get; set; }
         public List<PartidoJugadorDto> Jugadores { get; set; } = new();
+        public List<MiembroEstadoDto> Miembros { get; set; } = new();
     }
 }

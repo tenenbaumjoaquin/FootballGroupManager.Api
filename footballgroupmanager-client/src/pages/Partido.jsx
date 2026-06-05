@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { grupoService, partidoService } from '../services/api'
 import fondo from '../assets/fondo.png'
+import AvatarPreview from '../components/AvatarPreview'
 
 const PixelBox = ({ children, style = {}, onClick }) => (
   <div onClick={onClick} style={{
     position: 'relative',
-    background: '#fff',
+    background: style.borderColor || '#fff',
     clipPath: 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0% calc(100% - 6px), 0% 6px)',
     cursor: onClick ? 'pointer' : 'default',
     ...style,
@@ -15,24 +16,25 @@ const PixelBox = ({ children, style = {}, onClick }) => (
       margin: '2px',
       background: style.innerBackground || '#000',
       clipPath: 'polygon(5px 0%, calc(100% - 5px) 0%, 100% 5px, 100% calc(100% - 5px), calc(100% - 5px) 100%, 5px 100%, 0% calc(100% - 5px), 0% 5px)',
-      padding: style.padding || '12px 16px',
+      padding: style.padding || '10px 16px',
+      textAlign: 'center',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
     }}>
       {children}
     </div>
   </div>
 )
 
+const POSICION_LABEL = {
+  ARQ: 'ARQ', DEF: 'DEF', VOL: 'VOL', DEL: 'DEL'
+}
+
 const ESTADO_COLORS = {
   Abierto: '#4cff4c',
   Cerrado: '#f0c040',
   Jugado:  '#888',
-}
-
-const POSICION_LABEL = {
-  ARQ: '🧤 ARQ',
-  DEF: '🛡️ DEF',
-  VOL: '⚙️ VOL',
-  DEL: '⚡ DEL',
 }
 
 function Partido() {
@@ -44,6 +46,12 @@ function Partido() {
   const [partido, setPartido] = useState(null)
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
+  const [modalDetalles, setModalDetalles] = useState(false)
+  const [modalPerfil, setModalPerfil] = useState(null)
+  const [detalles, setDetalles] = useState({
+    direccion: '',
+    fechaHora: '',
+  })
 
   useEffect(() => { cargarDatos() }, [])
 
@@ -69,6 +77,22 @@ function Partido() {
       setError('')
     } catch (err) {
       setError(err.response?.data?.mensaje || 'ERROR AL CREAR EL PARTIDO.')
+    }
+  }
+
+  const handleGuardarDetalles = async () => {
+    try {
+      const res = await partidoService.actualizarDetalles(partido.id, {
+        fechaHora: detalles.fechaHora ? new Date(detalles.fechaHora).toISOString() : null,
+        direccion: detalles.direccion || null,
+        latitud: null,
+        longitud: null,
+      })
+      setPartido(res.data)
+      setModalDetalles(false)
+      setError('')
+    } catch (err) {
+      setError(err.response?.data?.mensaje || 'ERROR AL GUARDAR DETALLES.')
     }
   }
 
@@ -115,7 +139,6 @@ function Partido() {
   const yoConfirme = partido?.jugadores.some(j => j.usuario.id === usuario?.id)
   const equipoA = partido?.jugadores.filter(j => j.equipoAsignado === 'A') || []
   const equipoB = partido?.jugadores.filter(j => j.equipoAsignado === 'B') || []
-  const sinEquipo = partido?.jugadores.filter(j => !j.equipoAsignado) || []
   const puntajeA = equipoA.reduce((acc, j) => acc + j.usuario.puntajeTotal, 0).toFixed(2)
   const puntajeB = equipoB.reduce((acc, j) => acc + j.usuario.puntajeTotal, 0).toFixed(2)
 
@@ -134,14 +157,10 @@ function Partido() {
           <span style={styles.botonTextoSm}>&lt; VOLVER</span>
         </PixelBox>
         <div style={styles.headerCentro}>
-          <span style={styles.headerNombre}>
-            {grupo?.nombre?.toUpperCase()}
-          </span>
-          <span style={styles.headerCodigo}>
-            COD: {grupo?.codigo}
-          </span>
+          <span style={styles.headerNombre}>{grupo?.nombre?.toUpperCase()}</span>
+          <span style={styles.headerCodigo}>COD: {grupo?.codigo}</span>
         </div>
-        <div style={styles.headerMiembros}>
+        <div style={styles.headerDerecha}>
           <span style={styles.infoLabel}>MIEMBROS</span>
           <span style={styles.infoValor}>{(grupo?.miembros?.length || 0) + 1}</span>
         </div>
@@ -155,339 +174,373 @@ function Partido() {
           <div style={styles.centrado}>
             <p style={styles.mensajeGrande}>NO HAY PARTIDO ACTIVO</p>
             <PixelBox style={{ innerBackground: '#1a7a1a' }} onClick={handleCrearPartido}>
-              <span style={styles.botonTexto}>+ CREAR PARTIDO</span>
+              <span style={styles.botonTexto}>+ ANUNCIAR PARTIDO</span>
             </PixelBox>
           </div>
         ) : (
-          <>
-            {/* Estado bar */}
-            <div style={styles.estadoBar}>
-              <div style={styles.estadoIzq}>
-                <span style={styles.estadoLabel}>ESTADO</span>
-                <span style={{
-                  ...styles.estadoBadge,
-                  color: ESTADO_COLORS[partido.estado] || '#fff',
-                  borderColor: ESTADO_COLORS[partido.estado] || '#fff',
-                }}>
-                  {partido.estado.toUpperCase()}
-                </span>
-              </div>
-              <div style={styles.estadoDer}>
-                <span style={styles.estadoLabel}>JUGADORES</span>
-                <span style={styles.estadoContador}>
-                  {partido.jugadores.length}
-                  <span style={styles.estadoMax}>/10</span>
-                </span>
-              </div>
-            </div>
+          <div style={styles.layoutGrid}>
 
-            {/* Acciones */}
-            {partido.estado === 'Abierto' && (
-              <div style={styles.acciones}>
-                {!yoConfirme ? (
-                  <PixelBox style={{ innerBackground: '#1a7a1a' }} onClick={handleConfirmar}>
-                    <span style={styles.botonTexto}>✔ CONFIRMAR ASISTENCIA</span>
-                  </PixelBox>
-                ) : (
-                  <PixelBox style={{ innerBackground: '#7a1a1a' }} onClick={handleCancelar}>
-                    <span style={styles.botonTexto}>✖ CANCELAR ASISTENCIA</span>
-                  </PixelBox>
-                )}
-                {partido.jugadores.length === 10 && (
-                  <PixelBox style={{ innerBackground: '#7a5a00' }} onClick={handleGenerarEquipos}>
-                    <span style={styles.botonTexto}>⚡ GENERAR EQUIPOS</span>
-                  </PixelBox>
-                )}
-              </div>
-            )}
+            {/* Columna izquierda — info partido */}
+            <div style={styles.columnaIzq}>
 
-            {partido.estado === 'Cerrado' && (
-              <div style={styles.acciones}>
-                <PixelBox onClick={handleMarcarJugado}>
-                  <span style={styles.botonTexto}>🏁 MARCAR COMO JUGADO</span>
-                </PixelBox>
-              </div>
-            )}
+              {/* Estado */}
+              <div style={styles.estadoCard}>
+                <div style={styles.estadoCardInner}>
+                  <div style={styles.estadoRow}>
+                    <span style={styles.infoLabel}>ESTADO</span>
+                    <span style={{
+                      ...styles.estadoBadge,
+                      color: ESTADO_COLORS[partido.estado],
+                      borderColor: ESTADO_COLORS[partido.estado],
+                    }}>
+                      {partido.estado.toUpperCase()}
+                    </span>
+                  </div>
+                  <div style={styles.estadoRow}>
+                    <span style={styles.infoLabel}>JUGADORES</span>
+                    <span style={styles.contadorJugadores}>
+                      {partido.jugadores.length}
+                      <span style={{ color: '#555', fontSize: '14px' }}>/10</span>
+                    </span>
+                  </div>
 
-            {/* Lista jugadores confirmados */}
-            {partido.estado === 'Abierto' && (
-              <div style={styles.seccion}>
-                <h3 style={styles.seccionTitulo}>JUGADORES CONFIRMADOS</h3>
-                {sinEquipo.length === 0 ? (
-                  <p style={styles.mensajeVacio}>NADIE CONFIRMO TODAVIA</p>
-                ) : (
-                  <div style={styles.listaJugadores}>
-                    {sinEquipo.map((pj, i) => (
-                      <div key={i} style={styles.jugadorCardWrapper}>
-                        <div style={styles.jugadorCardInner}>
-                          <span style={styles.jugadorNombre}>
-                            {pj.usuario.nombre.toUpperCase()}
+                  {/* Fecha y hora */}
+                  {partido.fechaHora && (
+                    <div style={styles.estadoRow}>
+                      <span style={styles.infoLabel}>FECHA</span>
+                      <span style={styles.infoValor}>
+                        {new Date(partido.fechaHora).toLocaleDateString('es-AR', {
+                          day: '2-digit', month: '2-digit',
+                          hour: '2-digit', minute: '2-digit'
+                        })}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Dirección */}
+                  {partido.direccion && (
+                    <div style={{ ...styles.estadoRow, flexDirection: 'column', gap: '4px' }}>
+                      <span style={styles.infoLabel}>LUGAR</span>
+                      <span style={{ ...styles.infoValor, fontSize: '8px', lineHeight: '1.6' }}>
+                        {partido.direccion}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Acciones */}
+              {partido.estado === 'Abierto' && (
+                <div style={styles.acciones}>
+                  {!yoConfirme ? (
+                    <PixelBox style={{ innerBackground: '#1a7a1a' }} onClick={handleConfirmar}>
+                      <span style={styles.botonTexto}>✔ CONFIRMAR</span>
+                    </PixelBox>
+                  ) : (
+                    <PixelBox style={{ innerBackground: '#7a1a1a' }} onClick={handleCancelar}>
+                      <span style={styles.botonTexto}>✖ CANCELAR</span>
+                    </PixelBox>
+                  )}
+                  <PixelBox onClick={() => {
+                    setDetalles({
+                      direccion: partido.direccion || '',
+                      fechaHora: partido.fechaHora
+                        ? new Date(partido.fechaHora).toISOString().slice(0, 16)
+                        : '',
+                    })
+                    setModalDetalles(true)
+                  }}>
+                    <span style={styles.botonTexto}>📍 DETALLES</span>
+                  </PixelBox>
+                  {partido.jugadores.length === 10 && (
+                    <PixelBox style={{ innerBackground: '#7a5a00' }} onClick={handleGenerarEquipos}>
+                      <span style={styles.botonTexto}>⚡ GENERAR</span>
+                    </PixelBox>
+                  )}
+                </div>
+              )}
+
+              {partido.estado === 'Cerrado' && (
+                <div style={styles.acciones}>
+                  <PixelBox onClick={handleMarcarJugado}>
+                    <span style={styles.botonTexto}>🏁 MARCAR JUGADO</span>
+                  </PixelBox>
+                </div>
+              )}
+
+              {/* Equipos generados */}
+              {(partido.estado === 'Cerrado' || partido.estado === 'Jugado') && (
+                <div style={styles.equiposGrid}>
+                  {[
+                    { letra: 'A', jugadores: equipoA, puntaje: puntajeA, color: '#4cff4c' },
+                    { letra: 'B', jugadores: equipoB, puntaje: puntajeB, color: '#f0c040' },
+                  ].map(equipo => (
+                    <div key={equipo.letra} style={styles.equipoWrapper}>
+                      <div style={styles.equipoInner}>
+                        <div style={{ ...styles.equipoHeader, borderBottom: `2px solid ${equipo.color}` }}>
+                          <span style={{ ...styles.equipoTitulo, color: equipo.color }}>
+                            EQUIPO {equipo.letra}
                           </span>
-                          <span style={styles.jugadorPos}>
-                            {POSICION_LABEL[pj.usuario.posicion]}
-                          </span>
-                          <span style={styles.jugadorPuntaje}>
-                            ★ {pj.usuario.puntajeTotal}
+                          <span style={{ color: equipo.color, fontSize: '11px', fontWeight: '900' }}>
+                            ★ {equipo.puntaje}
                           </span>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Equipos */}
-            {(partido.estado === 'Cerrado' || partido.estado === 'Jugado') && (
-              <div style={styles.equiposGrid}>
-                {[
-                  { letra: 'A', jugadores: equipoA, puntaje: puntajeA, color: '#4cff4c' },
-                  { letra: 'B', jugadores: equipoB, puntaje: puntajeB, color: '#f0c040' },
-                ].map(equipo => (
-                  <div key={equipo.letra} style={styles.equipoWrapper}>
-                    <div style={styles.equipoInner}>
-                      <div style={{
-                        ...styles.equipoHeader,
-                        borderBottom: `3px solid ${equipo.color}`,
-                      }}>
-                        <span style={{ ...styles.equipoTitulo, color: equipo.color }}>
-                          EQUIPO {equipo.letra}
-                        </span>
-                        <span style={{ ...styles.equipoPuntaje, color: equipo.color }}>
-                          ★ {equipo.puntaje}
-                        </span>
-                      </div>
-                      <div style={styles.listaJugadores}>
                         {equipo.jugadores.map((pj, i) => (
-                          <div key={i} style={styles.jugadorCardWrapper}>
-                            <div style={styles.jugadorCardInner}>
-                              <span style={styles.jugadorNombre}>
-                                {pj.usuario.nombre.toUpperCase()}
-                              </span>
-                              <span style={styles.jugadorPos}>
-                                {POSICION_LABEL[pj.usuario.posicion]}
-                              </span>
-                              <span style={styles.jugadorPuntaje}>
-                                ★ {pj.usuario.puntajeTotal}
-                              </span>
-                            </div>
+                          <div key={i} style={styles.jugadorRow}>
+                            <span style={styles.jugadorNombre}>{pj.usuario.nombre.toUpperCase()}</span>
+                            <span style={styles.jugadorPos}>{POSICION_LABEL[pj.usuario.posicion]}</span>
+                            <span style={styles.jugadorPuntaje}>★ {pj.usuario.puntajeTotal}</span>
                           </div>
                         ))}
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Columna derecha — lista de miembros */}
+            <div style={styles.columnaDer}>
+              <div style={styles.miembrosCard}>
+                <div style={styles.miembrosInner}>
+                  <h3 style={styles.miembrosTitulo}>JUGADORES DEL GRUPO</h3>
+                  {partido.miembros?.map((m, i) => (
+                    <div key={i}
+                      onClick={() => setModalPerfil(m)}
+                      style={{
+                        ...styles.miembroRow,
+                        opacity: m.confirmado ? 1 : 0.45,
+                        borderLeft: m.confirmado
+                          ? '3px solid #4cff4c' : '3px solid #333',
+                      }}>
+                      <div style={styles.miembroInfo}>
+                        <span style={styles.miembroNombre}>{m.nombre.toUpperCase()}</span>
+                        <span style={styles.miembroPos}>{POSICION_LABEL[m.posicion]}</span>
+                      </div>
+                      <div style={styles.miembroDerecha}>
+                        <span style={styles.miembroPuntaje}>★ {m.puntajeTotal}</span>
+                        {m.confirmado && (
+                          <span style={styles.confirmadoBadge}>✔</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            )}
-          </>
+            </div>
+          </div>
         )}
       </div>
+
+      {/* Modal detalles del partido */}
+      {modalDetalles && (
+        <div style={styles.overlay}>
+          <div style={styles.modalWrapper}>
+            <div style={styles.modalInner}>
+              <h3 style={styles.modalTitulo}>DETALLES DEL PARTIDO</h3>
+              <div style={styles.form}>
+                <div style={styles.campo}>
+                  <label style={styles.label}>FECHA Y HORA</label>
+                  <PixelBox>
+                    <input
+                      style={styles.inputInner}
+                      type="datetime-local"
+                      value={detalles.fechaHora}
+                      onChange={e => setDetalles({ ...detalles, fechaHora: e.target.value })}
+                    />
+                  </PixelBox>
+                </div>
+                <div style={styles.campo}>
+                  <label style={styles.label}>DIRECCIÓN</label>
+                  <PixelBox>
+                    <input
+                      style={styles.inputInner}
+                      type="text"
+                      placeholder="Ej: Av. Corrientes 1234, CABA"
+                      value={detalles.direccion}
+                      onChange={e => setDetalles({ ...detalles, direccion: e.target.value })}
+                    />
+                  </PixelBox>
+                </div>
+                <div style={styles.modalBotones}>
+                  <PixelBox style={{ flex: 1, innerBackground: '#1a7a1a' }}
+                    onClick={handleGuardarDetalles}>
+                    <span style={styles.botonTexto}>GUARDAR</span>
+                  </PixelBox>
+                  <PixelBox style={{ flex: 1 }} onClick={() => setModalDetalles(false)}>
+                    <span style={styles.botonTexto}>CANCELAR</span>
+                  </PixelBox>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal perfil del jugador */}
+      {modalPerfil && (
+        <div style={styles.overlay} onClick={() => setModalPerfil(null)}>
+          <div style={styles.modalWrapper} onClick={e => e.stopPropagation()}>
+            <div style={styles.modalInner}>
+              <h3 style={styles.modalTitulo}>{modalPerfil.nombre.toUpperCase()}</h3>
+              <div style={styles.perfilLayout}>
+                <div style={styles.perfilIzq}>
+                  <p style={styles.perfilPos}>{POSICION_LABEL[modalPerfil.posicion]}</p>
+                  <p style={styles.perfilCal}>{modalPerfil.calificacion}</p>
+                  <p style={styles.perfilPunt}>★ {modalPerfil.puntajeTotal}</p>
+                  {modalPerfil.confirmado && (
+                    <p style={styles.confirmadoTexto}>✔ CONFIRMADO</p>
+                  )}
+                </div>
+              </div>
+              <PixelBox style={{ marginTop: '16px' }} onClick={() => setModalPerfil(null)}>
+                <span style={styles.botonTexto}>CERRAR</span>
+              </PixelBox>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
 const styles = {
   container: {
-    minHeight: '100vh',
-    backgroundSize: 'cover',
-    backgroundRepeat: 'repeat',
-    display: 'flex',
-    flexDirection: 'column',
+    minHeight: '100vh', backgroundSize: 'cover',
+    backgroundRepeat: 'repeat', display: 'flex', flexDirection: 'column',
   },
   header: {
-    background: 'rgba(0,0,0,0.9)',
-    borderBottom: '3px solid #4cff4c',
-    padding: '12px 24px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '16px',
+    background: 'rgba(0,0,0,0.9)', borderBottom: '3px solid #4cff4c',
+    padding: '12px 24px', display: 'flex', alignItems: 'center', gap: '16px',
   },
   headerCentro: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '4px',
+    flex: 1, display: 'flex', flexDirection: 'column',
+    alignItems: 'center', gap: '4px',
   },
-  headerNombre: {
-    color: '#f0c040',
-    fontSize: '13px',
-    fontWeight: '700',
-    letterSpacing: '2px',
-  },
-  headerCodigo: {
-    color: '#888',
-    fontSize: '9px',
-    letterSpacing: '1px',
-  },
-  headerMiembros: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '4px',
-  },
-  contenido: {
-    padding: '24px',
-    maxWidth: '960px',
-    margin: '0 auto',
-    width: '100%',
-  },
-  error: {
-    color: '#ff4c4c',
-    fontSize: '10px',
-    marginBottom: '16px',
-    textAlign: 'center',
-    lineHeight: '1.6',
-  },
-  mensaje: {
-    color: '#4cff4c',
-    textAlign: 'center',
-    fontSize: '12px',
-    padding: '40px',
-  },
+  headerNombre: { color: '#f0c040', fontSize: '13px', fontWeight: '700', letterSpacing: '2px' },
+  headerCodigo: { color: '#888', fontSize: '9px', letterSpacing: '1px' },
+  headerDerecha: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' },
+  contenido: { padding: '24px', maxWidth: '1100px', margin: '0 auto', width: '100%' },
+  error: { color: '#ff4c4c', fontSize: '10px', marginBottom: '16px', textAlign: 'center' },
+  mensaje: { color: '#4cff4c', textAlign: 'center', fontSize: '12px', padding: '40px' },
   mensajeGrande: {
-    color: '#4cff4c',
-    fontSize: '14px',
-    letterSpacing: '2px',
-    marginBottom: '24px',
-    textAlign: 'center',
-  },
-  mensajeVacio: {
-    color: '#555',
-    fontSize: '10px',
-    textAlign: 'center',
-    padding: '20px',
-    letterSpacing: '1px',
+    color: '#4cff4c', fontSize: '14px', letterSpacing: '2px',
+    marginBottom: '24px', textAlign: 'center',
   },
   centrado: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '60px 20px',
-    gap: '20px',
+    display: 'flex', flexDirection: 'column',
+    alignItems: 'center', justifyContent: 'center', padding: '60px 20px', gap: '20px',
   },
-  estadoBar: {
-    background: 'rgba(0,0,0,0.85)',
-    border: '2px solid #1a7a1a',
+  layoutGrid: {
+    display: 'grid', gridTemplateColumns: '1fr 340px', gap: '20px', alignItems: 'start',
+  },
+  columnaIzq: { display: 'flex', flexDirection: 'column', gap: '16px' },
+  columnaDer: {},
+  estadoCard: {
+    background: '#fff',
     clipPath: 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0% calc(100% - 8px), 0% 8px)',
-    padding: '16px 24px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '20px',
   },
-  estadoIzq: { display: 'flex', flexDirection: 'column', gap: '6px' },
-  estadoDer: { display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' },
-  estadoLabel: { color: '#4cff4c', fontSize: '9px', letterSpacing: '1px' },
+  estadoCardInner: {
+    margin: '2px', background: '#000',
+    clipPath: 'polygon(7px 0%, calc(100% - 7px) 0%, 100% 7px, 100% calc(100% - 7px), calc(100% - 7px) 100%, 7px 100%, 0% calc(100% - 7px), 0% 7px)',
+    padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '12px',
+  },
+  estadoRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
   estadoBadge: {
-    fontSize: '12px',
-    fontWeight: '700',
-    letterSpacing: '2px',
-    border: '2px solid',
-    padding: '4px 10px',
+    fontSize: '11px', fontWeight: '700', letterSpacing: '1px',
+    border: '2px solid', padding: '4px 10px',
     clipPath: 'polygon(4px 0%, calc(100% - 4px) 0%, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 0% calc(100% - 4px), 0% 4px)',
   },
-  estadoContador: { color: '#fff', fontSize: '20px', fontWeight: '900' },
-  estadoMax: { color: '#555', fontSize: '14px' },
-  acciones: {
-    display: 'flex',
-    gap: '12px',
-    marginBottom: '20px',
-    flexWrap: 'wrap',
-  },
-  seccion: {
-    background: 'rgba(0,0,0,0.85)',
-    border: '2px solid #1a7a1a',
-    clipPath: 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0% calc(100% - 8px), 0% 8px)',
-    padding: '20px',
-  },
-  seccionTitulo: {
-    color: '#4cff4c',
-    fontSize: '11px',
-    letterSpacing: '2px',
-    marginBottom: '16px',
-  },
-  listaJugadores: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px',
-  },
-  jugadorCardWrapper: {
-    background: '#4cff4c',
-    clipPath: 'polygon(5px 0%, calc(100% - 5px) 0%, 100% 5px, 100% calc(100% - 5px), calc(100% - 5px) 100%, 5px 100%, 0% calc(100% - 5px), 0% 5px)',
-  },
-  jugadorCardInner: {
-    margin: '2px',
-    background: '#111',
-    clipPath: 'polygon(4px 0%, calc(100% - 4px) 0%, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 0% calc(100% - 4px), 0% 4px)',
-    padding: '10px 14px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-  },
-  jugadorNombre: {
-    flex: 1,
-    color: '#fff',
-    fontSize: '10px',
-    fontWeight: '700',
-    letterSpacing: '1px',
-  },
-  jugadorPos: {
-    color: '#4cff4c',
-    fontSize: '9px',
-    fontWeight: '700',
-  },
-  jugadorPuntaje: {
-    color: '#f0c040',
-    fontSize: '10px',
-    fontWeight: '900',
-  },
-  equiposGrid: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '20px',
-  },
+  contadorJugadores: { color: '#fff', fontSize: '20px', fontWeight: '900' },
+  acciones: { display: 'flex', gap: '10px', flexWrap: 'wrap' },
+  equiposGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' },
   equipoWrapper: {
     background: '#fff',
-    clipPath: 'polygon(10px 0%, calc(100% - 10px) 0%, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0% calc(100% - 10px), 0% 10px)',
+    clipPath: 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0% calc(100% - 8px), 0% 8px)',
   },
   equipoInner: {
-    margin: '2px',
-    background: '#000',
-    clipPath: 'polygon(9px 0%, calc(100% - 9px) 0%, 100% 9px, 100% calc(100% - 9px), calc(100% - 9px) 100%, 9px 100%, 0% calc(100% - 9px), 0% 9px)',
-    padding: '0',
+    margin: '2px', background: '#000',
+    clipPath: 'polygon(7px 0%, calc(100% - 7px) 0%, 100% 7px, 100% calc(100% - 7px), calc(100% - 7px) 100%, 7px 100%, 0% calc(100% - 7px), 0% 7px)',
     overflow: 'hidden',
   },
   equipoHeader: {
-    padding: '14px 16px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '4px',
+    padding: '12px 16px', display: 'flex',
+    justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px',
   },
-  equipoTitulo: {
-    fontSize: '13px',
-    fontWeight: '900',
-    letterSpacing: '2px',
+  equipoTitulo: { fontSize: '12px', fontWeight: '900', letterSpacing: '2px' },
+  jugadorRow: {
+    display: 'flex', alignItems: 'center', gap: '8px',
+    padding: '8px 14px', borderTop: '1px solid #1a1a1a',
   },
-  equipoPuntaje: {
-    fontSize: '12px',
-    fontWeight: '900',
+  jugadorNombre: { flex: 1, color: '#fff', fontSize: '9px', fontWeight: '700' },
+  jugadorPos: { color: '#4cff4c', fontSize: '8px', fontWeight: '700' },
+  jugadorPuntaje: { color: '#f0c040', fontSize: '9px', fontWeight: '900' },
+  miembrosCard: {
+    background: '#fff',
+    clipPath: 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0% calc(100% - 8px), 0% 8px)',
+  },
+  miembrosInner: {
+    margin: '2px', background: '#000',
+    clipPath: 'polygon(7px 0%, calc(100% - 7px) 0%, 100% 7px, 100% calc(100% - 7px), calc(100% - 7px) 100%, 7px 100%, 0% calc(100% - 7px), 0% 7px)',
+    padding: '16px',
+  },
+  miembrosTitulo: {
+    color: '#4cff4c', fontSize: '10px', letterSpacing: '2px',
+    marginBottom: '14px',
+  },
+  miembroRow: {
+    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+    padding: '10px 12px', marginBottom: '6px', background: '#111',
+    cursor: 'pointer',
+    clipPath: 'polygon(4px 0%, calc(100% - 4px) 0%, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 0% calc(100% - 4px), 0% 4px)',
+  },
+  miembroInfo: { display: 'flex', flexDirection: 'column', gap: '4px' },
+  miembroNombre: { color: '#fff', fontSize: '9px', fontWeight: '700', letterSpacing: '1px' },
+  miembroPos: { color: '#4cff4c', fontSize: '8px' },
+  miembroDerecha: { display: 'flex', alignItems: 'center', gap: '8px' },
+  miembroPuntaje: { color: '#f0c040', fontSize: '10px', fontWeight: '900' },
+  confirmadoBadge: {
+    color: '#4cff4c', fontSize: '12px', fontWeight: '900',
   },
   infoLabel: { color: '#4cff4c', fontSize: '9px', letterSpacing: '1px' },
-  infoValor: { color: '#fff', fontSize: '11px', fontWeight: '700' },
-  botonTexto: {
-    color: '#fff', fontSize: '11px',
-    fontWeight: '900', letterSpacing: '1px',
-    textAlign: 'center', cursor: 'pointer',
+  infoValor: { color: '#fff', fontSize: '10px', fontWeight: '700' },
+  overlay: {
+    position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100,
+  },
+  modalWrapper: {
+    background: '#fff',
+    clipPath: 'polygon(12px 0%, calc(100% - 12px) 0%, 100% 12px, 100% calc(100% - 12px), calc(100% - 12px) 100%, 12px 100%, 0% calc(100% - 12px), 0% 12px)',
+    width: '100%', maxWidth: '420px',
+  },
+  modalInner: {
+    margin: '3px', background: '#000',
+    clipPath: 'polygon(10px 0%, calc(100% - 10px) 0%, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0% calc(100% - 10px), 0% 10px)',
+    padding: '28px',
+  },
+  modalTitulo: { color: '#4cff4c', fontSize: '13px', letterSpacing: '2px', marginBottom: '20px' },
+  form: { display: 'flex', flexDirection: 'column', gap: '14px' },
+  campo: { display: 'flex', flexDirection: 'column', gap: '6px' },
+  label: { color: '#4cff4c', fontSize: '9px', fontWeight: '700', letterSpacing: '1px' },
+  inputInner: {
+    background: 'transparent', border: 'none', color: '#fff',
+    fontSize: '11px', outline: 'none', width: '100%',
     fontFamily: "'Press Start 2P', cursive",
   },
+  modalBotones: { display: 'flex', gap: '10px', marginTop: '8px' },
+  perfilLayout: { display: 'flex', gap: '16px', alignItems: 'center' },
+  perfilIzq: { display: 'flex', flexDirection: 'column', gap: '8px' },
+  perfilPos: { color: '#4cff4c', fontSize: '10px', letterSpacing: '1px' },
+  perfilCal: { color: '#f0c040', fontSize: '20px', fontWeight: '900' },
+  perfilPunt: { color: '#fff', fontSize: '12px' },
+  confirmadoTexto: { color: '#4cff4c', fontSize: '9px', letterSpacing: '1px' },
+  botonTexto: {
+    color: '#fff', fontSize: '10px', fontWeight: '900',
+    letterSpacing: '1px', cursor: 'pointer', fontFamily: "'Press Start 2P', cursive",
+  },
   botonTextoSm: {
-    color: '#fff', fontSize: '9px',
-    fontWeight: '900', letterSpacing: '1px',
-    cursor: 'pointer',
-    fontFamily: "'Press Start 2P', cursive",
+    color: '#fff', fontSize: '9px', fontWeight: '900',
+    letterSpacing: '1px', cursor: 'pointer', fontFamily: "'Press Start 2P', cursive",
   },
 }
 

@@ -5,6 +5,7 @@ import Nariz from './avatar/Nariz'
 import Boca from './avatar/Boca'
 import Barba from './avatar/Barba'
 import Camiseta from './avatar/Camiseta'
+import Accesorio from './avatar/Accesorio'
 
 const FONDOS = {
   gradiente_01: 'linear-gradient(135deg, #6B2FA0, #9B59B6)',
@@ -45,6 +46,7 @@ function AvatarPreview({ config, size = 200 }) {
       <Boca tipo={config?.boca} />
       <Pelo tipo={config?.pelo} colorPelo={config?.colorPelo} />
       <Barba tipo={config?.barba} colorBarba={config?.colorBarba} />
+      <Accesorio tipo={config?.accesorio} />
     </div>
   )
 }
