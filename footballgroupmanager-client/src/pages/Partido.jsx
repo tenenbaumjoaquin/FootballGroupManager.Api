@@ -3,6 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { grupoService, partidoService } from '../services/api'
 import fondo from '../assets/fondo.png'
 import AvatarPreview from '../components/AvatarPreview'
+import {
+  RadarChart, Radar, PolarGrid, PolarAngleAxis,
+  PolarRadiusAxis, Tooltip, ResponsiveContainer
+} from 'recharts' 
 
 const PixelBox = ({ children, style = {}, onClick }) => (
   <div onClick={onClick} style={{
@@ -32,9 +36,10 @@ const POSICION_LABEL = {
 }
 
 const ESTADO_COLORS = {
-  Abierto: '#4cff4c',
-  Cerrado: '#f0c040',
-  Jugado:  '#888',
+  Abierto:    '#4cff4c',
+  Cerrado:    '#f0c040',
+  Jugado:     '#888',
+  Suspendido: '#ff4c4c',
 }
 
 function Partido() {
@@ -229,44 +234,64 @@ function Partido() {
                 </div>
               </div>
 
-              {/* Acciones */}
-              {partido.estado === 'Abierto' && (
-                <div style={styles.acciones}>
-                  {!yoConfirme ? (
-                    <PixelBox style={{ innerBackground: '#1a7a1a' }} onClick={handleConfirmar}>
-                      <span style={styles.botonTexto}>✔ CONFIRMAR</span>
+                {/* Acciones */}
+                {partido.estado === 'Abierto' && (
+                  <div style={styles.acciones}>
+                    {!yoConfirme ? (
+                      <PixelBox style={{ innerBackground: '#1a7a1a' }} onClick={handleConfirmar}>
+                        <span style={styles.botonTexto}>✔ CONFIRMAR</span>
+                      </PixelBox>
+                    ) : (
+                      <PixelBox style={{ innerBackground: '#7a1a1a' }} onClick={handleCancelar}>
+                        <span style={styles.botonTexto}>✖ CANCELAR</span>
+                      </PixelBox>
+                    )}
+                    <PixelBox onClick={() => {
+                      setDetalles({
+                        direccion: partido.direccion || '',
+                        fechaHora: partido.fechaHora
+                          ? new Date(partido.fechaHora).toISOString().slice(0, 16)
+                          : '',
+                      })
+                      setModalDetalles(true)
+                    }}>
+                      <span style={styles.botonTexto}>📍 DETALLES</span>
                     </PixelBox>
-                  ) : (
-                    <PixelBox style={{ innerBackground: '#7a1a1a' }} onClick={handleCancelar}>
-                      <span style={styles.botonTexto}>✖ CANCELAR</span>
+                    {partido.jugadores.length === 10 && (
+                      <PixelBox style={{ innerBackground: '#7a5a00' }} onClick={handleGenerarEquipos}>
+                        <span style={styles.botonTexto}>⚡ GENERAR</span>
+                      </PixelBox>
+                    )}
+                    <PixelBox style={{ innerBackground: '#7a1a1a' }} onClick={async () => {
+                      try {
+                        const res = await partidoService.suspender(partido.id)
+                        setPartido(res.data)
+                      } catch (err) {
+                        setError(err.response?.data?.mensaje || 'ERROR AL SUSPENDER.')
+                      }
+                    }}>
+                      <span style={styles.botonTexto}>⚠ SUSPENDER</span>
                     </PixelBox>
-                  )}
-                  <PixelBox onClick={() => {
-                    setDetalles({
-                      direccion: partido.direccion || '',
-                      fechaHora: partido.fechaHora
-                        ? new Date(partido.fechaHora).toISOString().slice(0, 16)
-                        : '',
-                    })
-                    setModalDetalles(true)
-                  }}>
-                    <span style={styles.botonTexto}>📍 DETALLES</span>
-                  </PixelBox>
-                  {partido.jugadores.length === 10 && (
-                    <PixelBox style={{ innerBackground: '#7a5a00' }} onClick={handleGenerarEquipos}>
-                      <span style={styles.botonTexto}>⚡ GENERAR</span>
-                    </PixelBox>
-                  )}
-                </div>
-              )}
+                  </div>
+                )}
 
-              {partido.estado === 'Cerrado' && (
-                <div style={styles.acciones}>
-                  <PixelBox onClick={handleMarcarJugado}>
-                    <span style={styles.botonTexto}>🏁 MARCAR JUGADO</span>
-                  </PixelBox>
-                </div>
-              )}
+                {partido.estado === 'Cerrado' && (
+                  <div style={styles.acciones}>
+                    <PixelBox onClick={handleMarcarJugado}>
+                      <span style={styles.botonTexto}>🏁 MARCAR JUGADO</span>
+                    </PixelBox>
+                    <PixelBox style={{ innerBackground: '#7a1a1a' }} onClick={async () => {
+                      try {
+                        const res = await partidoService.suspender(partido.id)
+                        setPartido(res.data)
+                      } catch (err) {
+                        setError(err.response?.data?.mensaje || 'ERROR AL SUSPENDER.')
+                      }
+                    }}>
+                      <span style={styles.botonTexto}>⚠ SUSPENDER</span>
+                    </PixelBox>
+                  </div>
+                )}
 
               {/* Equipos generados */}
               {(partido.estado === 'Cerrado' || partido.estado === 'Jugado') && (
@@ -304,7 +329,7 @@ function Partido() {
               <div style={styles.miembrosCard}>
                 <div style={styles.miembrosInner}>
                   <h3 style={styles.miembrosTitulo}>JUGADORES DEL GRUPO</h3>
-                  {partido.miembros?.map((m, i) => (
+                 {partido.miembros?.map((m, i) => (
                     <div key={i}
                       onClick={() => setModalPerfil(m)}
                       style={{
@@ -313,6 +338,28 @@ function Partido() {
                         borderLeft: m.confirmado
                           ? '3px solid #4cff4c' : '3px solid #333',
                       }}>
+
+                      {/* Avatar cuadrado */}
+                      <div style={{
+                        width: '54px',
+                        height: '54px',
+                        flexShrink: 0,
+                        overflow: 'hidden',
+                        position: 'relative',
+                        clipPath: 'polygon(4px 0%, calc(100% - 2px) 0%, 100% 4px, 100% calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 0% calc(100% - 2px), 0% 2px)',
+                        background: '#111',
+                      }}>
+                        <div style={{
+                          position: 'absolute',
+                          top: '55%',
+                          left: '50%',
+                          transform: 'translate(-50%, -50%) scale(0.75)',
+                          transformOrigin: 'center center',
+                        }}>
+                          <AvatarPreview config={m.avatar} size={70} />
+                        </div>
+                      </div>
+
                       <div style={styles.miembroInfo}>
                         <span style={styles.miembroNombre}>{m.nombre.toUpperCase()}</span>
                         <span style={styles.miembroPos}>{POSICION_LABEL[m.posicion]}</span>
@@ -377,32 +424,64 @@ function Partido() {
         </div>
       )}
 
-      {/* Modal perfil del jugador */}
-      {modalPerfil && (
-        <div style={styles.overlay} onClick={() => setModalPerfil(null)}>
-          <div style={styles.modalWrapper} onClick={e => e.stopPropagation()}>
-            <div style={styles.modalInner}>
-              <h3 style={styles.modalTitulo}>{modalPerfil.nombre.toUpperCase()}</h3>
-              <div style={styles.perfilLayout}>
-                <div style={styles.perfilIzq}>
-                  <p style={styles.perfilPos}>{POSICION_LABEL[modalPerfil.posicion]}</p>
-                  <p style={styles.perfilCal}>{modalPerfil.calificacion}</p>
-                  <p style={styles.perfilPunt}>★ {modalPerfil.puntajeTotal}</p>
-                  {modalPerfil.confirmado && (
-                    <p style={styles.confirmadoTexto}>✔ CONFIRMADO</p>
-                  )}
-                </div>
+    {/* Modal perfil del jugador */}
+    {modalPerfil && (
+      <div style={styles.overlay} onClick={() => setModalPerfil(null)}>
+        <div style={styles.modalWrapper} onClick={e => e.stopPropagation()}>
+          <div style={styles.modalInner}>
+            <h3 style={styles.modalTitulo}>{modalPerfil.nombre.toUpperCase()}</h3>
+            <div style={styles.perfilLayout}>
+
+              {/* Avatar */}
+              <div style={{
+                flexShrink: 0,
+                overflow: 'hidden',
+                clipPath: 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0% calc(100% - 8px), 0% 8px)',
+              }}>
+                <AvatarPreview config={modalPerfil.avatar} size={120} />
               </div>
-              <PixelBox style={{ marginTop: '16px' }} onClick={() => setModalPerfil(null)}>
-                <span style={styles.botonTexto}>CERRAR</span>
-              </PixelBox>
+
+              {/* Datos */}
+              <div style={styles.perfilIzq}>
+                <p style={styles.perfilPos}>{POSICION_LABEL[modalPerfil.posicion]}</p>
+                <p style={styles.perfilCal}>{modalPerfil.calificacion}</p>
+                <p style={styles.perfilPunt}>★ {modalPerfil.puntajeTotal}</p>
+                <p style={styles.perfilUser}>@{modalPerfil.nombreUsuario}</p>
+                {modalPerfil.confirmado && (
+                  <p style={styles.confirmadoTexto}>✔ CONFIRMADO</p>
+                )}
+              </div>
+                {/* Radar */}
+                {modalPerfil.stats?.length > 0 && (
+                  <div style={{ width: '160px', flexShrink: 0 }}>
+                    <ResponsiveContainer width="100%" height={180}>
+                      <RadarChart data={modalPerfil.stats.map(s => ({
+                        stat: s.nombre, valor: s.puntuacion, fullMark: 10
+                      }))}>
+                        <PolarGrid stroke="#2d6a2d" />
+                        <PolarAngleAxis dataKey="stat"
+                          tick={{ fill: '#4cff4c', fontSize: 7 }} />
+                        <PolarRadiusAxis domain={[0, 10]} tick={false} axisLine={false} />
+                        <Radar dataKey="valor" stroke="#f0c040"
+                          fill="#f0c040" fillOpacity={0.4} />
+                        <Tooltip contentStyle={{
+                          background: '#000', border: '1px solid #4cff4c',
+                          color: '#4cff4c', fontSize: '10px'
+                        }} />
+                      </RadarChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
             </div>
+            <PixelBox style={{ marginTop: '16px' }} onClick={() => setModalPerfil(null)}>
+              <span style={styles.botonTexto}>CERRAR</span>
+            </PixelBox>
           </div>
         </div>
-      )}
+      </div>
+    )}
     </div>
-  )
-}
+  )}
 
 const styles = {
   container: {
@@ -502,6 +581,8 @@ const styles = {
   confirmadoBadge: {
     color: '#4cff4c', fontSize: '12px', fontWeight: '900',
   },
+  perfilUser: { color: '#888', fontSize: '9px', letterSpacing: '1px' },
+
   infoLabel: { color: '#4cff4c', fontSize: '9px', letterSpacing: '1px' },
   infoValor: { color: '#fff', fontSize: '10px', fontWeight: '700' },
   overlay: {
@@ -511,7 +592,8 @@ const styles = {
   modalWrapper: {
     background: '#fff',
     clipPath: 'polygon(12px 0%, calc(100% - 12px) 0%, 100% 12px, 100% calc(100% - 12px), calc(100% - 12px) 100%, 12px 100%, 0% calc(100% - 12px), 0% 12px)',
-    width: '100%', maxWidth: '420px',
+    width: '100%',
+    maxWidth: '560px',
   },
   modalInner: {
     margin: '3px', background: '#000',
@@ -528,7 +610,12 @@ const styles = {
     fontFamily: "'Press Start 2P', cursive",
   },
   modalBotones: { display: 'flex', gap: '10px', marginTop: '8px' },
-  perfilLayout: { display: 'flex', gap: '16px', alignItems: 'center' },
+  perfilLayout: {
+    display: 'flex',
+    gap: '16px',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+  },
   perfilIzq: { display: 'flex', flexDirection: 'column', gap: '8px' },
   perfilPos: { color: '#4cff4c', fontSize: '10px', letterSpacing: '1px' },
   perfilCal: { color: '#f0c040', fontSize: '20px', fontWeight: '900' },

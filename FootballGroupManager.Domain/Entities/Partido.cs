@@ -111,6 +111,14 @@ namespace FootballGroupManager.Domain.Entities
             Estado = EstadoPartido.Jugado;
             FechaJugado = DateTime.UtcNow;
         }
+        public void Suspender()
+        {
+            if (Estado == EstadoPartido.Jugado)
+                throw new DomainException("No se puede suspender un partido ya jugado.");
+            if (Estado == EstadoPartido.Suspendido)
+                throw new DomainException("El partido ya está suspendido.");
+            Estado = EstadoPartido.Suspendido;
+        }
 
         public void AsignarId(int id)
         {

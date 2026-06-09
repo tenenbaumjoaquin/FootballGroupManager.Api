@@ -86,5 +86,12 @@ namespace FootballGroupManager.Api.Controllers
             var partido = await _service.MarcarComoJugadoAsync(partidoId);
             return Ok(partido);
         }
+        // POST api/partidos/5/suspender
+        [HttpPost("{partidoId}/suspender")]
+        public async Task<IActionResult> Suspender(int partidoId)
+        {
+            var partido = await _service.SuspenderAsync(partidoId);
+            return Ok(partido);
+        }
     }
 }

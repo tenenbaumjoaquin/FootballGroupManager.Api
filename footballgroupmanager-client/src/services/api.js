@@ -60,6 +60,7 @@ export const partidoService = {
   generarEquipos: (partidoId) => api.post(`/partidos/${partidoId}/equipos`),
   marcarJugado: (partidoId) => api.post(`/partidos/${partidoId}/jugado`),
   actualizarDetalles: (partidoId, data) => api.put(`/partidos/${partidoId}/detalles`, data),
+  suspender: (partidoId) => api.post(`/partidos/${partidoId}/suspender`)
 }
 
 

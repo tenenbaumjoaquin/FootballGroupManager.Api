@@ -12,6 +12,7 @@ namespace FootballGroupManager.Application.Interfaces
         Task<PartidoDto> CancelarAsistenciaAsync(int partidoId, int usuarioId);
         Task<PartidoDto> GenerarEquiposAsync(int partidoId);
         Task<PartidoDto> MarcarComoJugadoAsync(int partidoId);
+        Task<PartidoDto> SuspenderAsync(int partidoId);
         Task<PartidoDto> ActualizarDetallesAsync(int partidoId, ActualizarDetallesPartidoDto dto);
     }
 }

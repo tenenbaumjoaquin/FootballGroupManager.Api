@@ -1,4 +1,6 @@
-﻿namespace FootballGroupManager.Application.DTOs.Partido
+﻿using FootballGroupManager.Application.DTOs.Usuario;
+
+namespace FootballGroupManager.Application.DTOs.Partido
 {
     public class MiembroEstadoDto
     {
@@ -9,5 +11,7 @@
         public string Calificacion { get; set; } = string.Empty;
         public double PuntajeTotal { get; set; }
         public bool Confirmado { get; set; }
+        public List<StatDto> Stats { get; set; } = new();
+        public AvatarConfigDto? Avatar { get; set; }
     }
 }

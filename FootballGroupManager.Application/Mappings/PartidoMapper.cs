@@ -1,4 +1,5 @@
 ﻿using FootballGroupManager.Application.DTOs.Partido;
+using FootballGroupManager.Application.DTOs.Usuario;
 using FootballGroupManager.Domain.Entities;
 
 namespace FootballGroupManager.Application.Mappings
@@ -48,6 +49,37 @@ namespace FootballGroupManager.Application.Mappings
                         Calificacion = u.Calificacion,
                         PuntajeTotal = u.PuntajeTotal,
                         Confirmado = jugadoresConfirmados.Contains(u.Id),
+                        Avatar = u.Avatar is null ? null : new AvatarConfigDto
+                        {
+                            Cara = u.Avatar.Cara,
+                            ColorPiel = u.Avatar.ColorPiel,
+                            Boca = u.Avatar.Boca,
+                            Nariz = u.Avatar.Nariz,
+                            Ojos = u.Avatar.Ojos,
+                            ColorOjos = u.Avatar.ColorOjos,
+                            Pelo = u.Avatar.Pelo,
+                            ColorPelo = u.Avatar.ColorPelo,
+                            Barba = u.Avatar.Barba,
+                            ColorBarba = u.Avatar.ColorBarba,
+                            Accesorio = u.Avatar.Accesorio,
+                            Camiseta = u.Avatar.Camiseta,
+                            ColorCamisetaPrincipal = u.Avatar.ColorCamisetaPrincipal,
+                            ColorCamisetaSecundario = u.Avatar.ColorCamisetaSecundario,
+                            Fondo = u.Avatar.Fondo,
+                        },
+                        Stats = u.Stats is null ? new() : new List<StatDto>
+                        {
+                            new() { Nombre = "VEL", Puntuacion = u.Stats.Velocidad },
+                            new() { Nombre = "AGT", Puntuacion = u.Stats.Aguante  },
+                            new() { Nombre = "PAS", Puntuacion = u.Stats.Pase     },
+                            new() { Nombre = "GMB", Puntuacion = u.Stats.Gambeta  },
+                            new() { Nombre = "DEF", Puntuacion = u.Stats.Defensa  },
+                            new() { Nombre = "FIS", Puntuacion = u.Stats.Fisico   },
+                            new() { Nombre = "PEG", Puntuacion = u.Stats.Pegada   },
+                            new() { Nombre = "TIR", Puntuacion = u.Stats.Tiro     },
+                            new() { Nombre = "ATJ", Puntuacion = u.Stats.Atajada  },
+                            new() { Nombre = "REF", Puntuacion = u.Stats.Reflejo  },
+                        }
                     })
                     .ToList()
             };

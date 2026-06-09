@@ -4,6 +4,7 @@
     {
         Abierto,
         Cerrado,
-        Jugado
+        Jugado,
+        Suspendido
     }
 }
