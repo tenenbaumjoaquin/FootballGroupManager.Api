@@ -438,7 +438,7 @@ function Partido() {
                 overflow: 'hidden',
                 clipPath: 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0% calc(100% - 8px), 0% 8px)',
               }}>
-                <AvatarPreview config={modalPerfil.avatar} size={120} />
+                <AvatarPreview config={modalPerfil.avatar} size={200}/>
               </div>
 
               {/* Datos */}
@@ -453,11 +453,12 @@ function Partido() {
               </div>
                 {/* Radar */}
                 {modalPerfil.stats?.length > 0 && (
-                  <div style={{ width: '160px', flexShrink: 0 }}>
-                    <ResponsiveContainer width="100%" height={180}>
+                  <div style={{ width: '200px', flexShrink: 0 }}>
+                    <ResponsiveContainer width="100%" height={200}>
                       <RadarChart data={modalPerfil.stats.map(s => ({
                         stat: s.nombre, valor: s.puntuacion, fullMark: 10
-                      }))}>
+                      }))}
+                        margin={{ top: 15, right: 20, bottom: 15, left: 20 }}>
                         <PolarGrid stroke="#2d6a2d" />
                         <PolarAngleAxis dataKey="stat"
                           tick={{ fill: '#4cff4c', fontSize: 7 }} />

@@ -2,12 +2,14 @@ import Boca01 from './boca/Boca01'
 import Boca02 from './boca/Boca02'
 import Boca03 from './boca/Boca03'
 import Boca04 from './boca/Boca04'
+import Boca05 from './boca/Boca05'
 
 const BOCAS = {
   boca_01: Boca01,
   boca_02: Boca02,
   boca_03: Boca03,
   boca_04: Boca04,
+  boca_05: Boca05,
 }
 
 function Boca({ tipo = 'boca_01' }) {
