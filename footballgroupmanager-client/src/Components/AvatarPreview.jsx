@@ -42,11 +42,12 @@ function AvatarPreview({ config, size = 200 }) {
         colorOjos={config?.colorOjos}
         colorCejas={config?.colorPelo}
       />
+      <Accesorio tipo={config?.accesorio} />
       <Nariz tipo={config?.nariz} />
       <Boca tipo={config?.boca} />
       <Pelo tipo={config?.pelo} colorPelo={config?.colorPelo} />
       <Barba tipo={config?.barba} colorBarba={config?.colorBarba} />
-      <Accesorio tipo={config?.accesorio} />
+      
     </div>
   )
 }
