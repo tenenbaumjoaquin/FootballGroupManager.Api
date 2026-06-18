@@ -125,13 +125,13 @@ const FONDOS = [
 ]
 
 const OPCIONES = {
-  cara:      ['cara_01', 'cara_02','cara_03','cara_04','cara_05'],
-  ojos:      ['ojos_01', 'ojos_02', 'ojos_03', 'ojos_04', 'ojos_05'],
-  pelo:      ['ninguno','pelo_01', 'pelo_02', 'pelo_03', 'pelo_04', 'pelo_05', 'pelo_06', 'pelo_07', 'pelo_08'],
+  cara:      ['cara_01', 'cara_02','cara_03','cara_04','cara_05','cara_06'],
+  ojos:      ['ojos_01', 'ojos_02', 'ojos_03', 'ojos_04', 'ojos_05', 'ojos_06'],
+  pelo:      ['ninguno','pelo_01', 'pelo_02', 'pelo_03', 'pelo_04', 'pelo_05', 'pelo_06', 'pelo_07', 'pelo_08', 'pelo_09'],
   barba:     ['ninguno', 'barba_01', 'barba_02', 'barba_03', 'barba_04', 'barba_05', 'barba_06', 'barba_07'],
-  nariz:     ['nariz_01', 'nariz_02', 'nariz_03', 'nariz_04', 'nariz_05'],
-  boca:      ['boca_01', 'boca_02', 'boca_03', 'boca_04', 'boca_05'],
-  accesorio: ['ninguno', 'accesorio_01', 'accesorio_02'],
+  nariz:     ['nariz_01', 'nariz_02', 'nariz_03', 'nariz_04', 'nariz_05', 'nariz_06'],
+  boca:      ['boca_01', 'boca_02', 'boca_03', 'boca_04', 'boca_05', 'boca_06'],
+  accesorio: ['ninguno', 'accesorio_01', 'accesorio_02', 'accesorio_03'],
   camiseta:  [
     { id: 'camiseta_01', tieneColorSecundario: true  },
     { id: 'camiseta_02', tieneColorSecundario: false },

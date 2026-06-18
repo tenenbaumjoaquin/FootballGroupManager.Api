@@ -40,6 +40,13 @@ export const usuarioService = {
   miPerfil: () => api.get('/usuarios/me'),
   actualizar: (data) => api.put('/usuarios/me', data),
   eliminar: () => api.delete('/usuarios/me'),
+  miPerfil: () => api.get('/usuarios/me'),
+  actualizar: (data) => api.put('/usuarios/me', data),
+  eliminar: () => api.delete('/usuarios/me'),
+  verificarEmail: (email) => apiPublica.post('/usuarios/verificar-email', JSON.stringify(email), {
+    headers: { 'Content-Type': 'application/json' }
+  }),
+  cambiarPassword: (data) => apiPublica.put('/usuarios/cambiar-password', data),
 }
 
 export const grupoService = {
@@ -62,6 +69,7 @@ export const partidoService = {
   actualizarDetalles: (partidoId, data) => api.put(`/partidos/${partidoId}/detalles`, data),
   suspender: (partidoId) => api.post(`/partidos/${partidoId}/suspender`)
 }
+
 
 
 export default api

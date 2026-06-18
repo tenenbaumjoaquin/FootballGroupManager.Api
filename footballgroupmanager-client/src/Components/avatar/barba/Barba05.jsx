@@ -16,8 +16,8 @@ function Barba05({
       }}
     >
       <g id="ColorPelo" fill={colorBarba}>
-        <rect x="23" y="45" width="8" height="1" />
-        <rect x="22" y="46" width="10" height="1" />
+        <rect x="23" y="44" width="8" height="1" />
+        <rect x="22" y="45" width="10" height="1" />
       </g>
     </svg>
   )

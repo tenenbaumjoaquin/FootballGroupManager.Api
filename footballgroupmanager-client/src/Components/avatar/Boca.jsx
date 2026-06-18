@@ -11,7 +11,7 @@ const BOCAS = {
   boca_03: Boca03,
   boca_04: Boca04,
   boca_05: Boca05,
-  boca_06: Boca06
+  boca_06: Boca06,
 }
 
 function Boca({ tipo = 'boca_01' }) {

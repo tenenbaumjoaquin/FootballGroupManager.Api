@@ -13,14 +13,12 @@ function Boca04() {
         height: '100%',
       }}
     >
-      <g id="Boca">
-        <g id="contorno">
-          <rect x="21" y="45" width="12" height="1" fill="#000" />
-          <rect x="23" y="47" width="8" height="1" fill="#000" />
-          <rect x="31" y="46" width="1" height="1" fill="#000" />
-          <rect x="22" y="46" width="1" height="1" fill="#000" />
-          <rect x="23" y="46" width="8" height="1" fill="#fff" />
-        </g>
+      <g id="contorno" fill="#000">
+        <rect x="23" y="48" width="8" height="1" fill="#ffffff"/>
+        <rect x="21" y="47" width="12" height="1" />
+        <rect x="31" y="48" width="1" height="1" />
+        <rect x="22" y="48" width="1" height="1" />
+        <rect x="23" y="49" width="8" height="1" />
       </g>
     </svg>
   );

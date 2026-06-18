@@ -15,8 +15,8 @@ function Boca03() {
     >
       <g id="Boca">
         <g id="contorno" fill="#000">
-          <rect x="24" y="47" width="7" height="1" />
-          <rect x="23" y="46" width="1" height="1" />
+          <rect x="24" y="48" width="7" height="1" />
+          <rect x="23" y="47" width="1" height="1" />
         </g>
       </g>
     </svg>

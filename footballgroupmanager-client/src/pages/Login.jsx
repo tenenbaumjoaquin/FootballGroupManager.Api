@@ -101,6 +101,11 @@ function Login() {
             ¿NO TENES CUENTA?{' '}
             <Link to="/registro" style={styles.link}>REGISTRATE</Link>
           </p>
+          <p style={{ ...styles.linkTexto, marginTop: '8px' }}>
+            <Link to="/recuperar-password" style={{ ...styles.link, color: '#888' }}>
+              ¿OLVIDASTE TU CONTRASEÑA?
+            </Link>
+          </p>
         </div>
       </div>
        <div className="login-footer-mobile" />

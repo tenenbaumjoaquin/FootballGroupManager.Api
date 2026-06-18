@@ -17,8 +17,7 @@ function Nariz05() {
         <rect x="29" y="35" width="1" height="5" />
         <rect x="30" y="40" width="1" height="1" />
         <rect x="31" y="41" width="1" height="2" />
-        <rect x="29" y="42" width="2" height="1" />
-        <rect x="23" y="42" width="2" height="1" />
+        <rect x="23" y="42" width="8" height="1" />
         <rect x="22" y="41" width="1" height="2" />
         <rect x="23" y="40" width="1" height="1" />
         <rect x="24" y="35" width="1" height="5" />
