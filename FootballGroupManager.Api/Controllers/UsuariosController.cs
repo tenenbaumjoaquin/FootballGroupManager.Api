@@ -46,5 +46,22 @@ namespace FootballGroupManager.Api.Controllers
             await _service.EliminarAsync(ObtenerUsuarioId());
             return NoContent();
         }
+        // POST api/usuarios/verificar-email
+        [HttpPost("verificar-email")]
+        [AllowAnonymous]
+        public async Task<IActionResult> VerificarEmail([FromBody] string email)
+        {
+            var existe = await _service.VerificarEmailAsync(email);
+            return Ok(new { existe });
+        }
+
+        // PUT api/usuarios/cambiar-password
+        [HttpPut("cambiar-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> CambiarPassword([FromBody] CambiarPasswordDto dto)
+        {
+            await _service.CambiarPasswordAsync(dto.Email, dto.NuevaPassword);
+            return Ok();
+        }
     }
 }

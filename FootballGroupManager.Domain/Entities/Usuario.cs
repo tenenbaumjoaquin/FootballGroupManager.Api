@@ -88,6 +88,12 @@ namespace FootballGroupManager.Domain.Entities
             Stats = stats;
             CalcularCalificacion();
         }
+        public void ActualizarPassword(string passwordHash)
+        {
+            if (string.IsNullOrWhiteSpace(passwordHash))
+                throw new DomainException("La contraseña no puede estar vacía.");
+            PasswordHash = passwordHash;
+        }
         public void ActualizarAvatar(AvatarConfig avatar)
         {
             if (avatar is null)

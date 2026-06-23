@@ -9,5 +9,7 @@ namespace FootballGroupManager.Application.Interfaces
         Task<UsuarioDto> CrearAsync(CreateUsuarioDto dto);
         Task<UsuarioDto> ActualizarPerfilAsync(int id, UpdateUsuarioDto dto);
         Task EliminarAsync(int id);
+        Task<bool> VerificarEmailAsync(string email);
+        Task CambiarPasswordAsync(string email, string nuevaPassword);
     }
 }

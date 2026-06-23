@@ -119,5 +119,20 @@ namespace FootballGroupManager.Application.Services.Usuarios
 
             await _repositorio.EliminarAsync(usuario.Id);
         }
+        public async Task<bool> VerificarEmailAsync(string email)
+        {
+            var usuario = await _repositorio.ObtenerPorEmailAsync(email);
+            return usuario is not null;
+        }
+
+        public async Task CambiarPasswordAsync(string email, string nuevaPassword)
+        {
+            var usuario = await _repositorio.ObtenerPorEmailAsync(email)
+                ?? throw new DomainException("No se encontró un usuario con ese email.");
+
+            var hash = BCrypt.Net.BCrypt.HashPassword(nuevaPassword);
+            usuario.ActualizarPassword(hash);
+            await _repositorio.ActualizarAsync(usuario);
+        }
     }
 }
